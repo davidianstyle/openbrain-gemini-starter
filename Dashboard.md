@@ -1,7 +1,7 @@
 ---
 title: Dashboard
 tags: [dashboard]
-updated:
+updated: 2026-04-24
 ---
 
 # Dashboard
@@ -10,9 +10,12 @@ updated:
 
 ---
 
-## Today — _not yet generated_
+## Today — Friday 2026-04-24
 
-_Run `/daily-brief` to populate this section with today's calendar, focus suggestion, and timeline._
+- **Morning:** YMCA Camp & Ezra Drop Off
+- **Mid-day:** Costco run with Mimi
+- **Afternoon:** Pick up Eva & Let puppies out
+- **Focus:** Finalize KJ Consult scheduling
 
 ---
 
@@ -24,19 +27,43 @@ _Run `/weekly-review` to populate this section with this week's meetings and per
 
 ## Top priorities
 
-_Run `/weekly-review` or `/daily-brief` to populate this section with upcoming Asana tasks grouped by workspace._
+**One-off**
+- [ ] Initiate repair request for Ezra's broken joycons · `asana-personal`
+- [ ] Consider options for posting and managing photos to gracefellowship.faith website · `asana-personal`
+- [ ] Fix the printer · `asana-personal`
+- [ ] Check for 'surface' semantics in design system · `asana-work`
+- [ ] Verify concierge/coach systems migrated off Sendbird · `asana-work`
+- [ ] Backfill display names to "First L." · `asana-work`
+- [ ] Test Gemini GUI + CLI viability for retreat AI workshop · `asana-work`
+- [ ] Investigate Cursor daily audit job not running · `asana-work`
+- [ ] Dry run: set up OpenBrain + AI Chief of Staff · `asana-work`
+- [ ] Prepare OpenBrain demo for retreat buildathon · `asana-work`
+- [ ] Review KJ Consult scheduling draft · `david-doromind-com`
+- [ ] Process Fathom recordings from today · `fathom`
+
+**Weekly**
+- [ ] Download Eva’s Everbrook photos · `asana-personal`
+
+**Daily**
+- [ ] Do PT exercises · `asana-personal`
+- [ ] Log entry into headache diary · `asana-personal`
+- [ ] Drink water · `asana-personal`
+- [ ] Complete food diary · `asana-personal`
+- [ ] Check Magic Arena store · `asana-personal`
+- [ ] Walk 7,500 steps · `asana-personal`
 
 ---
 
 ## Needs a reply / open loops
 
-_Run `/daily-brief` to populate this section with actionable mail and Slack threads._
+- [ ] **Scheduling for KJ Consult** · Office - Alexander Sones, MD (Drafted)
+- [ ] **Working with Doro Mind** · Victoria Wood (Skyrocket Ventures)
 
 ---
 
 ## People past cadence
 
-_Run `/daily-brief` to populate this section with overdue relationship check-ins._
+_No stale relationships detected._
 
 ---
 
@@ -49,4 +76,6 @@ _Run `/daily-brief` to populate this section with overdue relationship check-ins
 
 ## Delegated / FYI
 
-_Run `/daily-brief` to populate this section with FYI items that don't require action._
+- **Your Subscription Price Increase** · Apple · `dchang-davidianstyle-com`
+- **Grace Fellowship** · Bruce · `davidianstyle-gmail-com`
+- **Doro Mind voicemail** · Brittany/Clare · `david-doromind-com`
