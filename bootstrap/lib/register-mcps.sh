@@ -119,12 +119,49 @@ shutil.copy2(settings_path, backup)
 data = json.loads(settings_path.read_text())
 servers = data.setdefault("mcpServers", {})
 
-def stdio(name, script, *args):
+def stdio(name, script, *args, include_tools=None):
     """Register a stdio MCP server in Gemini CLI format."""
-    servers[name] = {
+    entry = {
         "command": f"{lib_dir}/{script}",
         "args": list(args),
     }
+    if include_tools:
+        entry["includeTools"] = include_tools
+    servers[name] = entry
+
+# --- Tool allowlists (Gemini API limit: 512 function declarations) ---
+# Only expose tools the Chief of Staff skills actually use.
+
+GOOGLE_TOOLS = [
+    # Calendar
+    "calendar_list_events", "calendar_search_events", "calendar_get_event",
+    "calendar_create_event", "calendar_get_current_time", "calendar_list_calendars",
+    # Gmail
+    "gmail_search_emails", "gmail_read_email", "gmail_draft_email",
+    # Meet
+    "meet_list_meetings",
+    # Drive (read-only for research)
+    "drive_search_files", "drive_list_files",
+    # Docs (read-only)
+    "docs_read_document", "docs_get_info",
+]
+
+SLACK_TOOLS = [
+    "slack_conversations_history", "slack_conversations_replies",
+    "slack_conversations_add_message", "slack_conversations_search_messages",
+    "slack_conversations_unreads", "slack_conversations_open",
+    "slack_users_search", "slack_channels_list",
+    "slack_schedule_message",
+]
+
+ASANA_TOOLS = [
+    "asana_get_my_tasks", "asana_search_tasks", "asana_get_task",
+    "asana_update_task", "asana_create_task", "asana_create_task_story",
+    "asana_get_subtasks", "asana_get_tags_for_task",
+    "asana_get_project", "asana_get_tasks_for_project",
+]
+
+# Fathom has few tools — no filtering needed.
 
 # Remove any openbrain-managed entries before re-writing
 managed_prefixes = ("asana-", "google-", "slack-")
@@ -136,17 +173,17 @@ for k in list(servers.keys()):
             del servers[k]
 
 if plan["has_asana_personal"]:
-    stdio("asana-personal", "asana-mcp.sh", "personal")
+    stdio("asana-personal", "asana-mcp.sh", "personal", include_tools=ASANA_TOOLS)
 if plan["has_asana_work"]:
-    stdio("asana-work", "asana-mcp.sh", "work")
+    stdio("asana-work", "asana-mcp.sh", "work", include_tools=ASANA_TOOLS)
 
 # Gemini CLI namespaces tools as mcp_<serverName>_<toolName>
 # Use dashes in server names (avoid underscores to prevent tool name collisions)
 for slug in plan["google_slugs"]:
-    stdio(f"google-{slug}", "google-mcp.sh", slug)
+    stdio(f"google-{slug}", "google-mcp.sh", slug, include_tools=GOOGLE_TOOLS)
 
 for slug in plan["slack_slugs"]:
-    stdio(f"slack-{slug}", "slack-mcp.sh", slug)
+    stdio(f"slack-{slug}", "slack-mcp.sh", slug, include_tools=SLACK_TOOLS)
 
 if plan["has_fathom"]:
     stdio("fathom", "fathom-mcp.sh")
