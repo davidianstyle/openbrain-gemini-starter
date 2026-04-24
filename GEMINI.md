@@ -222,38 +222,45 @@ When an interaction note is created (via `/capture-meeting`, `/log-interaction`,
 
 ## 13. Chief of Staff skills and commands
 
-Skills live in `.gemini/skills/<name>/SKILL.md` (vault-local, portable with the repo). Gemini CLI auto-discovers skills and activates them when a task matches. You can also invoke them explicitly via custom commands defined in `.gemini/commands/`.
+Skills live in `.gemini/skills/<name>/SKILL.md` (vault-local, portable with the repo). Gemini CLI auto-discovers skills and activates them when a task matches. Invoke them by name — e.g. type `/daily-brief` or ask "run the daily-brief skill and follow its procedure step by step".
 
-| Command | Skill | Purpose |
-|---|---|---|
-| `/daily-brief` | daily-brief | Daily briefing — calendar + priority mail + Slack + Asana overdue + stale relationships → refreshes the `## Morning brief` section of today's daily note. Re-runnable. |
-| `/daily-review` | daily-review | End-of-day (or any-time) reconciliation — check off what got done, carry forward / drop the rest, push Asana updates → refreshes the `## Evening review` section of today's daily note. Re-runnable. |
-| `/process-inbox` | process-inbox | §4 triage across `+ Inbox/` + Gmail + Slack; auto-pushes `#asana/*` notes in scheduled mode. |
-| `/meeting-prep` | meeting-prep | Briefing for a meeting/1:1 — person note + recent interactions + open commitments + related projects + thread excerpts. |
-| `/capture-meeting` | capture-meeting | Turn raw notes into an interaction note; update linked people; propose `#asana/*` tasks. |
-| `/capture-youtube` | capture-youtube | Create a literature note from a YouTube video — fetch metadata, summarize, link to vault. |
-| `/log-person` | log-person | Create an atomic person note at `+ Atlas/People/`, optionally seed context from cross-account Gmail/Slack search. |
-| `/log-note` | log-note | Quick-capture a thought, observation, or log entry as an atomic note — no people or interaction required. |
-| `/log-interaction` | log-interaction | Lightweight manual touchpoint log (no transcript needed). |
-| `/log-idea` | log-idea | Create an idea note at `+ Atlas/Ideas/`. |
-| `/log-decision` | log-decision | Record a decision with context, reasoning, and alternatives at `+ Atlas/Decisions/`. |
-| `/log-goal` | log-goal | Create a goal note with definition of done and linked projects at `+ Atlas/Goals/`. |
-| `/log-place` | log-place | Create a place note at `+ Atlas/Places/`. |
-| `/log-organization` | log-organization | Create an organization note with key people and places at `+ Atlas/Organizations/`. |
-| `/log-quote` | log-quote | Save a quote with attribution and source link at `+ Atlas/Quotes/`. |
-| `/follow-up-draft` | follow-up-draft | Draft a reply/nudge for the right account. Saves as draft, never sends. |
-| `/what-am-i-missing` | what-am-i-missing | Surface overdue tasks, stale commitments, cadence misses, unanswered mail. |
-| `/people-audit` | people-audit | Cadence health report + regenerate `+ Spaces/People.md` grouping. |
-| `/people-sync` | people-sync | Discovery pass across Gmail/Calendar/Slack — auto-updates `last_contact` on known people, stages unknowns in `+ Inbox/people-candidates/`, proposes alias merges. |
-| `/weekly-review` | weekly-review | Monday synthesis → `+ Atlas/Weekly Reviews/<ISO-week>.md`. |
-| `/asana` | asana | Quick view of tasks due in the next 7 days across configured workspaces, with interactive check-off. |
+| Skill | Purpose |
+|---|---|
+| `/daily-brief` | Daily briefing — calendar + priority mail + Slack + Asana overdue + stale relationships → refreshes the `## Morning brief` section of today's daily note. Re-runnable. |
+| `/daily-review` | End-of-day (or any-time) reconciliation — check off what got done, carry forward / drop the rest, push Asana updates → refreshes the `## Evening review` section of today's daily note. Re-runnable. |
+| `/process-inbox` | §4 triage across `+ Inbox/` + Gmail + Slack; auto-pushes `#asana/*` notes in scheduled mode. |
+| `/meeting-prep` | Briefing for a meeting/1:1 — person note + recent interactions + open commitments + related projects + thread excerpts. |
+| `/capture-meeting` | Turn raw notes into an interaction note; update linked people; propose `#asana/*` tasks. |
+| `/capture-youtube` | Create a literature note from a YouTube video — fetch metadata, summarize, link to vault. |
+| `/log-person` | Create an atomic person note at `+ Atlas/People/`, optionally seed context from cross-account Gmail/Slack search. |
+| `/log-note` | Quick-capture a thought, observation, or log entry as an atomic note — no people or interaction required. |
+| `/log-interaction` | Lightweight manual touchpoint log (no transcript needed). |
+| `/log-idea` | Create an idea note at `+ Atlas/Ideas/`. |
+| `/log-decision` | Record a decision with context, reasoning, and alternatives at `+ Atlas/Decisions/`. |
+| `/log-goal` | Create a goal note with definition of done and linked projects at `+ Atlas/Goals/`. |
+| `/log-place` | Create a place note at `+ Atlas/Places/`. |
+| `/log-organization` | Create an organization note with key people and places at `+ Atlas/Organizations/`. |
+| `/log-quote` | Save a quote with attribution and source link at `+ Atlas/Quotes/`. |
+| `/follow-up-draft` | Draft a reply/nudge for the right account. Saves as draft, never sends. |
+| `/what-am-i-missing` | Surface overdue tasks, stale commitments, cadence misses, unanswered mail. |
+| `/people-audit` | Cadence health report + regenerate `+ Spaces/People.md` grouping. |
+| `/people-sync` | Discovery pass across Gmail/Calendar/Slack — auto-updates `last_contact` on known people, stages unknowns in `+ Inbox/people-candidates/`, proposes alias merges. |
+| `/weekly-review` | Monday synthesis → `+ Atlas/Weekly Reviews/<ISO-week>.md`. |
+| `/asana` | Quick view of tasks due in the next 7 days across configured workspaces, with interactive check-off. |
 
 Skills are markdown procedures only — they describe which MCP tools to call and which files to read/write. They do not execute code; Gemini reads the SKILL.md and performs the steps.
 
 ## 14. Tool usage notes
 
-- **MCP tool naming:** Gemini CLI namespaces MCP tools as `mcp_<serverAlias>_<toolName>`. When a skill references an MCP tool, use this format (e.g. `mcp_asana_personal_asana_get_my_tasks`).
-- **Slack write operations:** The local `slack_*` MCPs support `slack_conversations_add_message` natively. Use this tool for sending messages.
+- **MCP tool naming:** Gemini CLI namespaces MCP tools as `mcp_<serverAlias>_<toolName>`. Server aliases use **dashes** (not underscores). Examples:
+  - `mcp_google-davidianstyle-gmail-com_calendar_list_events` — Google Calendar for davidianstyle@gmail.com
+  - `mcp_google-david-doromind-com_gmail_search_emails` — Gmail for david@doromind.com
+  - `mcp_slack-doromind-slack-com_slack_conversations_history` — Slack for doromind.slack.com
+  - `mcp_asana-personal_asana_get_my_tasks` — Asana personal workspace
+  - `mcp_asana-work_asana_search_tasks` — Asana work workspace
+  - `mcp_fathom_fathom_list_meetings` — Fathom meeting recorder
+- **When a skill says "for each `google_*` MCP"**, iterate over all MCP servers whose alias starts with `google-`. Use `/mcp` to discover the full list of available servers and tools.
+- **Slack write operations:** The local `slack-*` MCPs support `slack_conversations_add_message` natively. Use this tool for sending messages.
 - **Before recommending any Asana task, Slack message, or Google Doc edit**, verify the target still exists (the state may have changed since the last session).
 
 ## 15. Deployment
