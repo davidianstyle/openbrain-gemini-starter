@@ -57,7 +57,7 @@ ok "node: $(command -v node) ($(node --version))"
 if command -v gemini >/dev/null 2>&1; then
   ok "gemini: $(command -v gemini)"
 else
-  warn "gemini CLI not found — install it: npm install -g @anthropic-ai/gemini-cli"
+  warn "gemini CLI not found — install it: npm install -g @google/gemini-cli"
   warn "  or see: https://geminicli.com/docs/"
 fi
 
