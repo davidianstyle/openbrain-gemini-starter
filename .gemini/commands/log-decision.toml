@@ -1,0 +1,2 @@
+description = "Record a decision with context, reasoning, and alternatives"
+prompt = "Run the log-decision skill. Record a decision as an atomic note at + Atlas/Decisions/ from the Decision template. {{args}}"

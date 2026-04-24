@@ -1,0 +1,2 @@
+description = "End-of-day reconciliation — check off tasks, carry forward, push Asana updates"
+prompt = "Run the daily-review skill. Compare today's plan against what actually got done, interactively check off Asana tasks, surface outstanding follow-ups, and update the Evening review section in today's daily note. {{args}}"

@@ -1,0 +1,2 @@
+description = "Create an idea note at + Atlas/Ideas/"
+prompt = "Run the log-idea skill. Create a new idea note at + Atlas/Ideas/ from the Idea template. {{args}}"

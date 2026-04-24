@@ -1,0 +1,2 @@
+description = "Create a goal note with definition of done and linked projects"
+prompt = "Run the log-goal skill. Create a new goal note at + Atlas/Goals/ from the Goal template. {{args}}"

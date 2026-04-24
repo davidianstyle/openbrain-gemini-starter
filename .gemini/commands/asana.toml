@@ -1,0 +1,2 @@
+description = "Show Asana tasks due in the next 7 days with interactive check-off"
+prompt = "Run the asana skill. Show Asana tasks due in the next 7 days across both workspaces and interactively mark tasks complete. {{args}}"

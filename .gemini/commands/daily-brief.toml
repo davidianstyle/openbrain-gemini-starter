@@ -1,0 +1,2 @@
+description = "Daily briefing — calendar + priority mail + Slack + Asana overdue + stale relationships"
+prompt = "Run the daily-brief skill. Produce today's daily briefing across all Google Calendars, Gmail accounts, Slack workspaces, and Asana. Write to the daily note and surface anything that needs attention today. Target date: {{args}}"

@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Obsidian workspace state (machine-local)
+.obsidian/workspace*.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+.trash/
+
+# Local Images Plus auto-downloads (machine-local attachments)
+.resources/
+
+# Bootstrap runtime state
+.openbrain/.bootstrap-state
+
+# Gemini CLI settings — per-machine (absolute paths baked in at setup time)
+.gemini/settings.json
+
+# Per-user customizations of GEMINI.md after setup — NOT tracked in the template repo
+# (Users should commit their customized GEMINI.md to their own private vault repo.)

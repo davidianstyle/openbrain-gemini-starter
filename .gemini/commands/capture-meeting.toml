@@ -1,0 +1,2 @@
+description = "Turn meeting notes or transcript into an interaction note and update linked people"
+prompt = "Run the capture-meeting skill. Turn the provided notes or transcript into an atomic interaction note, update linked people's last_contact and Threads, and propose follow-up tasks. Input: {{args}}"

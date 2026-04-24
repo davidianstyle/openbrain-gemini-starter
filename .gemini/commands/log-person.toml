@@ -1,0 +1,2 @@
+description = "Create an atomic person note, optionally seeding context from Gmail/Slack"
+prompt = "Run the log-person skill. Create a new person note at + Atlas/People/ from the Person template, optionally seeding context from cross-account Gmail/Slack search. Person: {{args}}"

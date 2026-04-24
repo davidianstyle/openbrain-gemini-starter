@@ -1,0 +1,2 @@
+description = "Briefing for a meeting or 1:1 — person note + interactions + commitments + threads"
+prompt = "Run the meeting-prep skill. Assemble a briefing pulling the person note, last interactions, open commitments, related projects, and recent email/Slack thread excerpts. Prepare for: {{args}}"
