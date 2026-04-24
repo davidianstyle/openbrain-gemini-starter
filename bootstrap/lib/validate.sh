@@ -16,7 +16,7 @@ check_fail() { err "$*"; ERRORS=$((ERRORS+1)); }
 check_warn() { warn "$*"; WARNINGS=$((WARNINGS+1)); }
 
 step "Vault layout"
-for d in "+ Inbox" "+ Spaces" "+ Atlas" "+ Sources" "+ Extras/Templates" "+ Archive" ".gemini/skills" ".gemini/commands" ".openbrain/lib"; do
+for d in "+ Inbox" "+ Spaces" "+ Atlas" "+ Sources" "+ Extras/Templates" "+ Archive" ".gemini/skills" ".openbrain/lib"; do
   if [[ -d "$REPO_ROOT/$d" ]]; then
     ok "$d"
   else
@@ -34,15 +34,7 @@ else
   check_fail "no skills found at .gemini/skills/*/SKILL.md"
 fi
 
-step "Custom commands"
-CMD_COUNT="$(find "$REPO_ROOT/.gemini/commands" -maxdepth 1 -name '*.toml' 2>/dev/null | wc -l | tr -d ' ')"
-if (( CMD_COUNT == 21 )); then
-  ok "21 custom commands present"
-elif (( CMD_COUNT > 0 )); then
-  check_warn "expected 21 commands, found $CMD_COUNT"
-else
-  check_fail "no custom commands found at .gemini/commands/*.toml"
-fi
+# Custom commands removed — Gemini CLI auto-generates /slash-commands from skills
 
 # Cross-check skills table in GEMINI.md references the same names
 if [[ -f "$REPO_ROOT/GEMINI.md" ]]; then
