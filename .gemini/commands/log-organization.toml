@@ -1,2 +1,0 @@
-description = "Create an organization note with key people and places"
-prompt = "Run the log-organization skill. Create a new organization note at + Atlas/Organizations/ from the Organization template. {{args}}"

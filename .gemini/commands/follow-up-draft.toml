@@ -1,2 +1,0 @@
-description = "Draft a follow-up email or Slack message for the right account — never sends"
-prompt = "Run the follow-up-draft skill. Draft a reply or nudge using the correct account. Save as draft, never send. Target: {{args}}"

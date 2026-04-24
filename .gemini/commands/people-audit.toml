@@ -1,2 +1,0 @@
-description = "Cadence health report + regenerate People MOC grouping"
-prompt = "Run the people-audit skill. Walk + Atlas/People/, report last_contact vs cadence, and update + Spaces/People.md grouping. Never edit person notes destructively."

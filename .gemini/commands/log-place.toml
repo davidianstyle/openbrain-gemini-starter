@@ -1,2 +1,0 @@
-description = "Create a place note at + Atlas/Places/"
-prompt = "Run the log-place skill. Create a new place note at + Atlas/Places/ from the Place template. {{args}}"

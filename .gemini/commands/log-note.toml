@@ -1,2 +1,0 @@
-description = "Quick-capture a thought, observation, or log entry as an atomic note"
-prompt = "Run the log-note skill. Quick-capture as an atomic note — no people or interaction required. Content: {{args}}"

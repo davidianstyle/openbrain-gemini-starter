@@ -1,2 +1,0 @@
-description = "Manually log a touchpoint (call, DM, chat) as an interaction note"
-prompt = "Run the log-interaction skill. Log a touchpoint as an atomic interaction note without needing a transcript. {{args}}"

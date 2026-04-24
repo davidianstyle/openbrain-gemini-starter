@@ -1,2 +1,0 @@
-description = "Triage Inbox + Gmail + Slack — classify, route, and auto-push #asana tagged notes"
-prompt = "Run the process-inbox skill. Triage + Inbox/ together with fresh items in Gmail and Slack across all accounts. Propose classification and surface anything needing a reply. Mode: {{args}}"

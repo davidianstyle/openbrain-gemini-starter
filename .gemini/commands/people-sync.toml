@@ -1,2 +1,0 @@
-description = "Discovery pass across Gmail/Calendar/Slack/Fathom — update contacts, stage unknowns"
-prompt = "Run the people-sync skill. Discovery pass across Gmail, Google Calendar, Slack, and Fathom to find unknown people and stale contacts. Stage new-person candidates in + Inbox/people-candidates/ and auto-update last_contact on existing people notes. {{args}}"

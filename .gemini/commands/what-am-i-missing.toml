@@ -1,2 +1,0 @@
-description = "Surface overdue tasks, stale commitments, cadence misses, unanswered mail"
-prompt = "Run the what-am-i-missing skill. Surface overdue Asana tasks, open commitments past implied deadlines, people past their cadence, and unanswered email threads where the user is the next actor."

@@ -1,2 +1,0 @@
-description = "Monday synthesis — weekly review from daily notes, interactions, Asana, and git history"
-prompt = "Run the weekly-review skill. Write + Atlas/Weekly Reviews/<ISO-week>.md from the past week's daily notes, interactions, Asana task churn, and git history. {{args}}"

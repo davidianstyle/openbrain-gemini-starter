@@ -1,2 +1,0 @@
-description = "Save a quote with attribution and source link"
-prompt = "Run the log-quote skill. Save a quote as an atomic note at + Atlas/Quotes/ from the Quote template. {{args}}"

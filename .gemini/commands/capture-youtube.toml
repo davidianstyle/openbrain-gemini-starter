@@ -1,2 +1,0 @@
-description = "Create a literature note from a YouTube video — fetch metadata, summarize, link to vault"
-prompt = "Run the capture-youtube skill. Fetch metadata, summarize content, create a literature note in + Sources/, and link to existing vault notes. Video: {{args}}"
