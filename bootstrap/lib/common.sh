@@ -152,6 +152,17 @@ ensure_env_file() {
     cp "$REPO_ROOT/.openbrain/env.example" "$ENV_FILE"
     chmod 600 "$ENV_FILE"
     ok "created $ENV_FILE from template"
+  else
+    # Backfill any missing marker blocks from env.example into the existing .env
+    local marker
+    for marker in "GOOGLE_SLUGS" "SLACK_TOKENS"; do
+      local start="# --- ${marker} (managed by bootstrap) ---"
+      local end="# --- END ${marker} ---"
+      if ! grep -qF "$start" "$ENV_FILE"; then
+        printf '\n%s\n%s\n' "$start" "$end" >> "$ENV_FILE"
+        info "backfilled missing $marker markers into $ENV_FILE"
+      fi
+    done
   fi
 }
 
