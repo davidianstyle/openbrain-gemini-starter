@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# Post-setup sanity check for an OpenBrain install.
+# Post-setup sanity check for an OpenBrain (Gemini CLI) install.
 # Exits 0 even on warnings — this is informational, not a gate.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=common.sh
 source "$HERE/common.sh"
+
+ensure_python3
 
 ERRORS=0
 WARNINGS=0
@@ -14,7 +16,7 @@ check_fail() { err "$*"; ERRORS=$((ERRORS+1)); }
 check_warn() { warn "$*"; WARNINGS=$((WARNINGS+1)); }
 
 step "Vault layout"
-for d in "+ Inbox" "+ Spaces" "+ Atlas" "+ Sources" "+ Extras/Templates" "+ Archive" ".claude/skills" ".openbrain/lib"; do
+for d in "+ Inbox" "+ Spaces" "+ Atlas" "+ Sources" "+ Extras/Templates" "+ Archive" ".gemini/skills" ".gemini/commands" ".openbrain/lib"; do
   if [[ -d "$REPO_ROOT/$d" ]]; then
     ok "$d"
   else
@@ -23,26 +25,36 @@ for d in "+ Inbox" "+ Spaces" "+ Atlas" "+ Sources" "+ Extras/Templates" "+ Arch
 done
 
 step "Skills inventory"
-SKILL_COUNT="$(find "$REPO_ROOT/.claude/skills" -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')"
+SKILL_COUNT="$(find "$REPO_ROOT/.gemini/skills" -maxdepth 2 -name SKILL.md 2>/dev/null | wc -l | tr -d ' ')"
 if (( SKILL_COUNT == 21 )); then
   ok "21 skills present"
 elif (( SKILL_COUNT > 0 )); then
   check_warn "expected 21 skills, found $SKILL_COUNT"
 else
-  check_fail "no skills found at .claude/skills/*/SKILL.md"
+  check_fail "no skills found at .gemini/skills/*/SKILL.md"
 fi
 
-# Cross-check skills table in CLAUDE.md references the same names
-if [[ -f "$REPO_ROOT/CLAUDE.md" ]]; then
-  MISSING_IN_CLAUDE_MD=0
+step "Custom commands"
+CMD_COUNT="$(find "$REPO_ROOT/.gemini/commands" -maxdepth 1 -name '*.toml' 2>/dev/null | wc -l | tr -d ' ')"
+if (( CMD_COUNT == 21 )); then
+  ok "21 custom commands present"
+elif (( CMD_COUNT > 0 )); then
+  check_warn "expected 21 commands, found $CMD_COUNT"
+else
+  check_fail "no custom commands found at .gemini/commands/*.toml"
+fi
+
+# Cross-check skills table in GEMINI.md references the same names
+if [[ -f "$REPO_ROOT/GEMINI.md" ]]; then
+  MISSING_IN_GEMINI_MD=0
   while IFS= read -r slug; do
     name="/$slug"
-    if ! grep -q "\`$name\`" "$REPO_ROOT/CLAUDE.md"; then
-      check_warn "skill $name has no row in CLAUDE.md §13 table"
-      MISSING_IN_CLAUDE_MD=$((MISSING_IN_CLAUDE_MD+1))
+    if ! grep -q "\`$name\`" "$REPO_ROOT/GEMINI.md"; then
+      check_warn "skill $name has no row in GEMINI.md §13 table"
+      MISSING_IN_GEMINI_MD=$((MISSING_IN_GEMINI_MD+1))
     fi
-  done < <(find "$REPO_ROOT/.claude/skills" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
-  (( MISSING_IN_CLAUDE_MD == 0 )) && ok "all skills referenced in CLAUDE.md"
+  done < <(find "$REPO_ROOT/.gemini/skills" -maxdepth 1 -mindepth 1 -type d -exec basename {} \;)
+  (( MISSING_IN_GEMINI_MD == 0 )) && ok "all skills referenced in GEMINI.md"
 fi
 
 step "Config files"
@@ -58,7 +70,7 @@ else
 fi
 
 step "Installed launchers at $LIB_DIR"
-for f in asana-mcp.sh gmail-mcp.sh gcal-mcp.sh gmeet-mcp.sh gdrive-mcp.sh slack-mcp.sh fathom-mcp.sh _common.sh; do
+for f in asana-mcp.sh google-mcp.sh slack-mcp.sh fathom-mcp.sh _common.sh; do
   if [[ -x "$LIB_DIR/$f" ]]; then
     ok "$f"
   else
@@ -88,28 +100,28 @@ info "Slack workspaces with tokens: $SCOUNT"
 [[ -n "${ASANA_PAT_WORK:-}" ]]     && ok "Asana work token set"     || info "no Asana work token (optional)"
 [[ -n "${FATHOM_API_KEY:-}" ]]     && ok "Fathom API key set"       || info "no Fathom API key (optional)"
 
-step "Claude MCP registration"
-CLAUDE_JSON="$HOME/.claude.json"
-if [[ -f "$CLAUDE_JSON" ]]; then
+step "Gemini CLI MCP registration"
+GEMINI_SETTINGS="$HOME/.gemini/settings.json"
+if [[ -f "$GEMINI_SETTINGS" ]]; then
   MCP_COUNT="$("$PYTHON_BIN" -c "
 import json
-d = json.load(open('$CLAUDE_JSON'))
+d = json.load(open('$GEMINI_SETTINGS'))
 servers = d.get('mcpServers', {})
 ob = [k for k, v in servers.items() if isinstance(v, dict) and 'openbrain' in v.get('command','')]
 print(len(ob))
 " 2>/dev/null || echo 0)"
   if (( MCP_COUNT > 0 )); then
-    ok "$MCP_COUNT openbrain MCP servers registered in ~/.claude.json"
+    ok "$MCP_COUNT openbrain MCP servers registered in ~/.gemini/settings.json"
   else
     check_warn "no openbrain MCP servers registered — run register-mcps.sh"
   fi
 else
-  check_warn "$CLAUDE_JSON not found — start Claude Code at least once"
+  check_warn "$GEMINI_SETTINGS not found — run register-mcps.sh"
 fi
 
 step "Summary"
 if (( ERRORS == 0 && WARNINGS == 0 )); then
-  ok "All checks passed. Restart Claude Code and run /mcp to verify."
+  ok "All checks passed. Start Gemini CLI in the vault and run /tools to verify."
 elif (( ERRORS == 0 )); then
   warn "$WARNINGS warning(s) — review above. Setup is usable."
 else
