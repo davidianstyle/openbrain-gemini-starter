@@ -250,9 +250,9 @@ Skills are markdown procedures only — they describe which MCP tools to call an
 ## 14. Tool usage notes
 
 - **MCP tool naming:** Gemini CLI namespaces MCP tools as `mcp_<serverAlias>_<toolName>`. Server aliases use **dashes** (not underscores). Examples:
-  - `mcp_google-jane-acme-com_calendar_list_events` — Google Calendar for jane@acme.com
-  - `mcp_google-jane-example-com_gmail_search_emails` — Gmail for jane@example.com
-  - `mcp_slack-myteam-slack-com_slack_conversations_history` — Slack for myteam.slack.com
+  - `mcp_google-davidianstyle-gmail-com_calendar_list_events` — Google Calendar for davidianstyle@gmail.com
+  - `mcp_google-david-doromind-com_gmail_search_emails` — Gmail for david@doromind.com
+  - `mcp_slack-doromind-slack-com_slack_conversations_history` — Slack for doromind.slack.com
   - `mcp_asana-personal_asana_get_my_tasks` — Asana personal workspace
   - `mcp_asana-work_asana_search_tasks` — Asana work workspace
   - `mcp_fathom_fathom_list_meetings` — Fathom meeting recorder
