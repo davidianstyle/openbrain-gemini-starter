@@ -101,14 +101,15 @@ ensure_git() {
 }
 
 ensure_python3() {
-  # Prefer Homebrew, then system — skip asdf shims (they fail without a .tool-versions)
+  # Prefer Homebrew, then system. Every candidate must pass --version to
+  # catch asdf/nvm shims that exist as executables but error at runtime.
   for candidate in /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do
-    if [[ -x "$candidate" ]]; then
+    if [[ -x "$candidate" ]] && "$candidate" --version >/dev/null 2>&1; then
       PYTHON_BIN="$candidate"
       return 0
     fi
   done
-  # Try command -v but verify it actually works (asdf shims exist but may error)
+  # Try whatever is on PATH, but verify it actually runs
   PYTHON_BIN="$(command -v python3 2>/dev/null || true)"
   if [[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]] && "$PYTHON_BIN" --version >/dev/null 2>&1; then
     return 0
