@@ -259,6 +259,7 @@ env_append_between_markers() {
   # Inserts LINE just before END_MARKER, if not already present between markers.
   local start="$1" end="$2" line="$3"
   ensure_env_file
+  [[ -n "${PYTHON_BIN:-}" ]] || ensure_python3
   if awk -v s="$start" -v e="$end" -v l="$line" '
     $0==s {in_block=1; next}
     $0==e {in_block=0; next}
