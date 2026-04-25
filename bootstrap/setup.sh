@@ -59,6 +59,15 @@ ok "gemini: $(command -v gemini)"
 ensure_gh
 ok "gh: $(command -v gh)"
 
+# If asdf is active, ensure .tool-versions exists so node/python resolve in this dir
+if command -v asdf >/dev/null 2>&1 && [[ ! -f "$REPO_ROOT/.tool-versions" ]]; then
+  NODE_VER="$(node --version 2>/dev/null | sed 's/^v//')"
+  if [[ -n "$NODE_VER" ]]; then
+    echo "nodejs $NODE_VER" > "$REPO_ROOT/.tool-versions"
+    ok "created .tool-versions (nodejs $NODE_VER) for asdf compatibility"
+  fi
+fi
+
 # -----------------------------------------------------------------------------
 # Step 2: user profile
 # -----------------------------------------------------------------------------
