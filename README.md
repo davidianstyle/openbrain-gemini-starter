@@ -11,7 +11,7 @@ OpenBrain is a portable template for a [Linking Your Thinking](https://www.linki
 
 Built for people who want Gemini to act on their calendar, email, tasks, and notes the way a human chief of staff would — proactively, with context, and without constant re-briefing.
 
-> This is the **Gemini CLI** edition of [OpenBrain](https://github.com/davidianstyle/openbrain-template). The original Claude Code edition lives at [openbrain-template](https://github.com/davidianstyle/openbrain-template).
+> This is the **Gemini CLI** edition of [OpenBrain](https://github.com/davidianstyle/openbrain-claude-starter). The original Claude Code edition lives at [openbrain-claude-starter](https://github.com/davidianstyle/openbrain-claude-starter).
 
 ---
 
@@ -193,6 +193,6 @@ See [`bootstrap/README.md`](bootstrap/README.md) for:
 
 ## Credits
 
-Developed by [@davidianstyle](https://github.com/davidianstyle) as the Gemini CLI adaptation of the [OpenBrain template](https://github.com/davidianstyle/openbrain-template).
+Developed by [@davidianstyle](https://github.com/davidianstyle) as the Gemini CLI adaptation of the [OpenBrain template](https://github.com/davidianstyle/openbrain-claude-starter).
 
 The underlying LYT methodology is from [Nick Milo](https://www.linkingyourthinking.com/).
