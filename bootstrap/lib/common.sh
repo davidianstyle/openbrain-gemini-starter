@@ -268,7 +268,7 @@ env_append_between_markers() {
     return 0  # already present
   fi
   # Insert before end marker
-  python3 - "$ENV_FILE" "$start" "$end" "$line" <<'PY'
+  "$PYTHON_BIN" - "$ENV_FILE" "$start" "$end" "$line" <<'PY'
 import sys
 path, start, end, line = sys.argv[1:]
 with open(path) as f:
