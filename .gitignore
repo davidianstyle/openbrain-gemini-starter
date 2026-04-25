@@ -20,3 +20,4 @@
 # (Users should commit their customized GEMINI.md to their own private vault repo.)
 CLAUDE.md
 .obsidian/*.json
+.tool-versions

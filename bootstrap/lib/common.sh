@@ -101,21 +101,29 @@ ensure_git() {
 }
 
 ensure_python3() {
-  # Prefer Homebrew, then system, then asdf
+  # Prefer Homebrew, then system — skip asdf shims (they fail without a .tool-versions)
   for candidate in /opt/homebrew/bin/python3 /usr/local/bin/python3 /usr/bin/python3; do
     if [[ -x "$candidate" ]]; then
       PYTHON_BIN="$candidate"
       return 0
     fi
   done
+  # Try command -v but verify it actually works (asdf shims exist but may error)
   PYTHON_BIN="$(command -v python3 2>/dev/null || true)"
-  if [[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]]; then
+  if [[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]] && "$PYTHON_BIN" --version >/dev/null 2>&1; then
     return 0
   fi
   # Auto-install via Homebrew
-  info "python3 not found — installing via Homebrew..."
+  info "python3 not found (or asdf shim has no version set) — installing via Homebrew..."
   ensure_homebrew
   brew install python
+  # Use Homebrew's python directly to avoid asdf shim interference
+  for candidate in /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+    if [[ -x "$candidate" ]]; then
+      PYTHON_BIN="$candidate"
+      return 0
+    fi
+  done
   PYTHON_BIN="$(command -v python3 2>/dev/null || true)"
   [[ -n "$PYTHON_BIN" && -x "$PYTHON_BIN" ]] \
     || die "python3 installation failed"
@@ -123,21 +131,36 @@ ensure_python3() {
 }
 
 ensure_node() {
-  if command -v node >/dev/null 2>&1 && command -v npx >/dev/null 2>&1; then
+  # Check if node actually works (not just that a shim exists)
+  if command -v node >/dev/null 2>&1 && node --version >/dev/null 2>&1; then
     return 0
   fi
-  # Try common install locations
-  for dir in /opt/homebrew/bin /usr/local/bin "$HOME/.asdf/shims" "$HOME/.nvm/versions/node"/*/bin; do
-    if [[ -x "$dir/node" && -x "$dir/npx" ]]; then
+  # Try real binaries, skipping broken asdf/nvm shims
+  for dir in /opt/homebrew/bin /usr/local/bin; do
+    if [[ -x "$dir/node" ]] && "$dir/node" --version >/dev/null 2>&1; then
       export PATH="$dir:$PATH"
       return 0
     fi
   done
-  # Auto-install via Homebrew
-  info "node not found — installing via Homebrew..."
+  # Try nvm versions
+  for dir in "$HOME/.nvm/versions/node"/*/bin; do
+    if [[ -x "$dir/node" ]] && "$dir/node" --version >/dev/null 2>&1; then
+      export PATH="$dir:$PATH"
+      return 0
+    fi
+  done
+  # Auto-install via Homebrew (bypasses asdf/nvm entirely)
+  info "node not found (or version manager shim has no version set) — installing via Homebrew..."
   ensure_homebrew
   brew install node
-  command -v node >/dev/null 2>&1 || die "node installation failed"
+  # Use Homebrew's node directly
+  for dir in /opt/homebrew/bin /usr/local/bin; do
+    if [[ -x "$dir/node" ]] && "$dir/node" --version >/dev/null 2>&1; then
+      export PATH="$dir:$PATH"
+      return 0
+    fi
+  done
+  command -v node >/dev/null 2>&1 && node --version >/dev/null 2>&1 || die "node installation failed"
   ok "node installed"
 }
 
