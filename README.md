@@ -43,7 +43,9 @@ The wizard will:
    - "Add another?" → repeat for as many as you want
    - Same for Slack workspaces, Asana, Fathom
 6. Register every MCP server in `~/.gemini/settings.json`
-7. Link the pre-commit hook and validate the install
+7. Link the pre-commit hook
+8. Optionally enable auto git sync hooks (commit + push on session end, pull on start)
+9. Validate the install
 
 Start Gemini CLI in the vault directory and run `/daily-brief` as your first skill.
 
@@ -158,7 +160,7 @@ All launched via `~/.config/openbrain/lib/*-mcp.sh` wrappers that source `~/.con
 | Context file | `CLAUDE.md` | `GEMINI.md` |
 | Config directory | `.claude/` | `.gemini/` |
 | MCP registration | `~/.claude.json` | `~/.gemini/settings.json` |
-| Git hooks | Pre-commit linter only | Pre-commit linter only |
+| Git hooks | Pre-commit linter + opt-in auto sync (Stop/SessionStart) | Pre-commit linter + opt-in auto sync (SessionEnd/SessionStart) |
 | Slash commands | Built into skills (Claude auto-invokes) | `.gemini/commands/*.toml` wrappers |
 | Skills format | `.claude/skills/<name>/SKILL.md` | `.gemini/skills/<name>/SKILL.md` (same format!) |
 | MCP tool prefix | `mcp__server__tool` | `mcp_server_tool` |
@@ -173,7 +175,7 @@ The vault structure, templates, people model, and skill procedures are identical
 - **Atomic notes.** One idea per note. If it wants to split, split it.
 - **Links over folders.** Structure comes from `[[wikilinks]]` and MOCs.
 - **Never delete, always archive.** Move to `+ Archive/`, never `rm`.
-- **Git is the sync layer.** No Obsidian Sync. You control when to commit and push.
+- **Git is the sync layer.** No Obsidian Sync. Auto git sync (commit + push on session end, pull on start) is available as an opt-in during setup.
 - **Skills are markdown procedures.** Gemini reads them and performs the steps.
 - **People are first-class entities.** Every person gets a note. Interactions link back. Cadence is tracked.
 - **Multi-account by default.** Every external service is wired per-account with routing tags.
