@@ -45,24 +45,19 @@ if ! yes_no "Continue?" y; then
 fi
 
 # -----------------------------------------------------------------------------
-# Step 1: prereqs
+# Step 1: prereqs (auto-installs missing dependencies)
 # -----------------------------------------------------------------------------
-step "1/9 · Checking prerequisites"
+step "1/9 · Checking & installing prerequisites"
+ensure_git
+ok "git: $(command -v git)"
 ensure_python3
 ok "python3: $PYTHON_BIN"
 ensure_node
 ok "node: $(command -v node) ($(node --version))"
-
-# Check for Gemini CLI
-if command -v gemini >/dev/null 2>&1; then
-  ok "gemini: $(command -v gemini)"
-else
-  warn "gemini CLI not found — install it: npm install -g @google/gemini-cli"
-  warn "  or see: https://geminicli.com/docs/"
-fi
-
-command -v git >/dev/null || die "git not found — install Xcode command-line tools"
-ok "git: $(command -v git)"
+ensure_gemini_cli
+ok "gemini: $(command -v gemini)"
+ensure_gh
+ok "gh: $(command -v gh)"
 
 # -----------------------------------------------------------------------------
 # Step 2: user profile

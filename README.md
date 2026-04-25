@@ -19,12 +19,9 @@ Built for people who want Gemini to act on their calendar, email, tasks, and not
 ## Prerequisites
 
 - **macOS** (Linux should work; untested)
-- **git** — usually `xcode-select --install`
-- **Python 3.10+** — `brew install python` (system python also works)
-- **Node.js 20+** — `brew install node` (or asdf / nvm)
-- **Gemini CLI** — `npm install -g @google/gemini-cli` ([docs](https://geminicli.com/docs/))
 - **Obsidian** — [download](https://obsidian.md)
-- Optional: **GitHub CLI** (`brew install gh`) if you want automated remote setup
+
+Everything else (git, Python, Node.js, Gemini CLI, GitHub CLI) is **auto-installed** by the setup wizard if missing. You don't need to install anything manually except Obsidian.
 
 ---
 
