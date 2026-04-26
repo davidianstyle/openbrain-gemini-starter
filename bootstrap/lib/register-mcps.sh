@@ -138,6 +138,7 @@ GOOGLE_TOOLS = [
     "calendar_create_event", "calendar_get_current_time", "calendar_list_calendars",
     # Gmail
     "gmail_search_emails", "gmail_read_email", "gmail_draft_email",
+    "gmail_list_attachments", "gmail_download_attachment",
     # Meet
     "meet_list_meetings",
     # Drive (read-only for research)
