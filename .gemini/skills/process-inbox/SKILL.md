@@ -23,7 +23,7 @@ Run the GEMINI.md §4 inbox triage workflow across all sources.
    For each actionable item:
    1. **Resolve account + thread.** Use the `google_*` MCP that surfaced the message, or the `slack_*` workspace.
    2. **Gather context.** Read the full thread via `google_gmail_read_email` on the matching `google_*` MCP (using the message ID from step 2). Check `+ Atlas/People/` for the sender's person note — pull open commitments, recent interactions, and relationship context. For Slack, read the thread via `slack_<slug>_conversations_replies`.
-   3. **Compose draft.** Match the user's voice (see GEMINI.md §6). Lead with the ask or the answer. For email: use `Re: <original subject>`. For Slack: no subject.
+   3. **Compose draft.** Apply the writing-style profile in GEMINI.md §6 (general voice, em-dash rule, email vs Slack, audience-size split). For email: use `Re: <original subject>`. For Slack: no subject. All other formatting and tone choices come from §6. (To populate or refresh §6 from your real sent messages, run `/learn-writing-style`.)
    4. **Save draft.**
       - **Email:** `google_gmail_draft_email` on the matching `google_*` MCP with `threadId` + `inReplyTo` set so it appears as an in-thread reply.
       - **Slack:** For Slack threads, compose the draft as a message body and present it to the user for manual sending. If the `slack_*` MCP supports `slack_schedule_message`, use that with a far-future timestamp as a pseudo-draft. Otherwise, save the draft text as a code block in the vault trail entry so the user can copy-paste it.
