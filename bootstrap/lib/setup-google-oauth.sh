@@ -40,12 +40,21 @@ two values back at the end.
        • Support email: (your email)
        • Developer contact: (your email)
        • Scopes: leave default (will be requested at runtime)
-       • Test users: add EVERY Google address you plan to wire up
+       • Publishing status:
+           - Testing  → quickest path; add EVERY Google address you plan to wire
+             up under "Test users". BUT Google expires refresh tokens after
+             ~7 days in testing mode, so you'll re-auth every week.
+           - In production (verified branding)  → long-lived refresh tokens
+             (no 7-day expiry). Requires app verification — fine for a personal
+             Desktop client with no public users; takes a few days but is a
+             one-time cost. Recommended once you're past the experimentation phase.
   5. APIs & Services → Credentials → + Create credentials → OAuth client ID
        • Application type: Desktop app
        • Name: openbrain-mcp-desktop
        • Click Create
-  6. A modal appears with the client ID and secret — copy both.
+  6. A modal appears with the client ID and secret — copy both NOW. Google
+     no longer lets you re-view the secret later; if you lose it you'll need
+     to mint a new one via "+ Add secret".
 
 EOF
 

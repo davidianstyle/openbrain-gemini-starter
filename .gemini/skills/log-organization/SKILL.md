@@ -21,8 +21,13 @@ description: Create a new organization note at + Atlas/Organizations/<name>.md f
    - Key people (search `+ Atlas/People/` for matches)
    - Places (search `+ Atlas/Places/` for matches)
    Skip sections they leave blank.
-4. **Link people and places.** Add `[[wikilinks]]` for confirmed matches.
-5. **Report.** Show the path and populated content.
+4. **Web fallback for missing `url:` and HQ address.** If the user left `url:` blank, do a bounded internet lookup:
+   - One `WebSearch` for `"<org name>" official site` (add a geographic hint if the name is ambiguous — e.g. `"Acme Group" <city>`).
+   - Pick the top result that's clearly the org's own domain (not a directory listing). Populate `url:` and append `<!-- url sourced from web lookup, verify -->` inline.
+   - While there, scan the homepage / footer / contact page (one `WebFetch`) for an HQ street address. If unambiguous, capture it in `## Context` as `_HQ: <address> (from <URL>, verify)._`. Don't put a non-vault address in frontmatter — orgs don't have an `address:` field (Places do).
+   - **Hard cap: 1 WebSearch + 1 WebFetch.** If multiple candidate sites disagree, leave `url:` blank and list the candidates inline for the user.
+5. **Link people and places.** Add `[[wikilinks]]` for confirmed matches.
+6. **Report.** Show the path and populated content.
 
 ## Output
 
