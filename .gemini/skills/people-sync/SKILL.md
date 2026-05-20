@@ -15,10 +15,10 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new perso
 ## Procedure
 
 1. **Resolve window.** Compute `since = today - lookback`.
-2. **Collect touchpoints across all accounts.** Fan out all four sources in a single tool-use block — every `google_*`, every `slack_*`, and Fathom. All calls are independent and must run concurrently; never loop through accounts serially.
+2. **Collect touchpoints across all accounts.** Fan out all four sources in a single tool-use block — every `google_*`, every `slack_*`, and Fathom. That's ~10 calls that must run concurrently; never loop through accounts serially.
    - **Gmail** — for each `google_*` MCP, `google_gmail_search_emails` with `newer_than:<window>` scoped to inbox + sent. Extract `From`, `To`, `Cc` addresses and display names from each thread. Tag each touchpoint with account slug and date.
    - **Google Calendar** — for each `google_*` MCP, `google_calendar_list_events` over the window. Extract attendees (name + email, skip resource rooms and the account owner).
-   - **Slack** — for each `slack_*` MCP, pull recent DMs and mentions via `conversations_history` / `conversations_search_messages`. Extract user ids; resolve to display names via `users_search` or profile lookups. Tag with workspace slug.
+   - **Slack** — for each `slack_*` MCP, fetch in parallel: `slack_conversations_unreads` (current DMs/IMs), `slack_my_mentions` with the lookback window in hours (channel + thread `@mentions` of the user), and optionally `slack_conversations_search_messages` for back-window DM history. The first two are **required** to capture both DM activity *and* channel-mention activity — without `slack_my_mentions`, mentions in already-read channels and thread replies are invisible. For each match, extract the `user` field (sender id) — resolve to a display name via `users_search` if needed. Tag each touchpoint with workspace slug.
    - **Fathom** — call `mcp_fathom_list_meetings` for the lookback window. Extract invitees (name + email) from each meeting. Tag touchpoints with source `fathom` and the meeting date. Each Fathom meeting where the user is a participant counts as a calendar-grade signal (direct meeting = high signal for Bucket C threshold).
 3. **Normalize into a touchpoint table.** One row per (person identifier, source, date). Identifier = email address (Gmail/Cal) or `workspace-slug:user_id` (Slack).
 4. **Filter noise.** Drop:
@@ -45,8 +45,13 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new perso
 8. **Bucket A — update `last_contact` + log interactions.** For each matched person, if the most-recent touchpoint date > current `last_contact`, update the frontmatter in place. In `interactive` mode, list the diffs and ask for confirmation; in `scheduled` mode, apply directly.
 
    **Auto-log interactions from email/Slack.** For each email thread or Slack message involving a known person, create a lightweight interaction note if one doesn't already exist for that thread. Filtering rules:
-   - **Include:** direct emails where the user is in To or From (not CC-only), Slack DMs, Slack @mentions where the user is the target.
+   - **Include:** direct emails where the user is in To or From (not CC-only), Slack DMs, **Slack `@mentions` where the user is the target** (these are first-class — do not skip).
    - **Exclude:** mailing lists, Google Groups, no-reply/bot addresses, automated notifications, CC-only threads, observer-only threads (per saved feedback).
+
+   **Sender resolution (the part that breaks if left implicit).**
+   - **Slack DMs:** the sender is the other DM participant — the `user` id in the channel's members list, excluding the user themselves.
+   - **Slack `@mentions`:** the sender is the **message's `user` field** — i.e. *who tagged the user*, not the user themselves. Match the resolved user_id against `+ Atlas/People/*.md` frontmatter `slack:` array, where entries are formatted `<workspace-slug>:<user_id>` (e.g. `acme-slack-com:U05P11T4ACR`). If no match in `slack:`, this mention does not auto-log (but may stage as a Bucket C candidate per step 7 if the threshold is met by other touchpoints).
+   - **Email:** for received messages, the sender is the `From` header. For sent messages, the *other* party (To/recipient) is what we match against `+ Atlas/People/*.md` `emails:` — a sent message *is* a touchpoint with the recipient.
 
    Create the note at `+ Atlas/Interactions/YYYY-MM-DD-<kebab-slug>.md` using the Interaction template:
    - `title`: email subject line or Slack thread topic

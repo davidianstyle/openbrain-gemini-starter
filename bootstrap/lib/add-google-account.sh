@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Add a single Google account to the OpenBrain MCP config.
 #
-# Performs ONE OAuth dance requesting all scopes (Gmail + Calendar + Meet + Drive)
-# and reshapes the resulting refresh token into the four formats each MCP expects:
+# Performs ONE OAuth dance requesting all scopes (Gmail + Calendar + Meet + Drive + Slides)
+# and reshapes the resulting refresh token into the formats each MCP expects:
 #
-#   ~/.config/openbrain/tokens/google-<slug>-credentials.json   (Gmail MCP)
+#   ~/.config/openbrain/tokens/google-<slug>-credentials.json   (Gmail MCP + Slides MCP)
 #   ~/.config/openbrain/tokens/google-<slug>-gcal-token.json    (Calendar MCP)
 #   ~/.config/openbrain/tokens/google-<slug>-gmeet-token.json   (Meet MCP)
 #   ~/.config/google-docs-mcp/<slug>/token.json                 (Drive/Docs/Sheets MCP)
@@ -99,6 +99,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/drive",
     "https://www.googleapis.com/auth/documents",
     "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/presentations",
 ]
 
 flow = InstalledAppFlow.from_client_secrets_file(client_file, SCOPES)
@@ -174,7 +175,7 @@ os.chmod(gdrive_path, 0o600)
 print(f"[openbrain] wrote {gdrive_path}")
 PY
 
-ok "reshaped tokens for all 4 Google MCPs"
+ok "reshaped tokens for all 5 Google MCPs (Gmail, Calendar, Meet, Drive, Slides)"
 
 # -----------------------------------------------------------------------------
 # Record the slug in .env so register-mcps.sh picks it up

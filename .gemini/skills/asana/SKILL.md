@@ -15,19 +15,18 @@ Quick view of upcoming Asana tasks with interactive completion. Pure chat skill 
 
 ### 1. Fetch upcoming tasks
 
-**Issue both calls in a single tool-use block so they run in parallel.** The two workspaces may use different tools (paid plans support full search; free-tier rejects `asana_search_tasks` with 402 Payment Required), but both calls are independent and must not be sequential.
+**Issue both calls in a single tool-use block so they run in parallel.** Both workspaces use `asana_get_my_tasks` — this returns only tasks **assigned to the user** (not collaborator/follower tasks, which `search_tasks` incorrectly includes).
 
-- **Paid workspace** (`mcp_asana_<slug>_asana_search_tasks`):
-  - `assignee_any: me`
-  - `completed: false`
-  - `due_on_before: <today + $1 days>` (inclusive upper bound as YYYY-MM-DD)
-  - `sort_by: due_date` *(must be `due_date`, NOT `due_on` — the API rejects `due_on` as a sort key with Bad Request)*
-  - `sort_ascending: true`
-  - `opt_fields: name,due_on,projects.name,permalink_url`
-- **Free-tier workspace** (`mcp_asana_<slug>_asana_get_my_tasks`):
+- **Work** (`mcp_asana_<work_slug>_asana_get_my_tasks`, workspace `<asana_work_workspace_gid>`):
   - `completed_since: now` (returns incomplete tasks only)
   - `opt_fields: name,due_on,due_at,projects.name,permalink_url`
   - Client-side filter: keep tasks where `due_on` is non-null AND `due_on <= today + $1 days`. Sort ascending by `due_on`.
+- **Personal** (`mcp_asana_<personal_slug>_asana_get_my_tasks`, workspace `<asana_personal_workspace_gid>`):
+  - `completed_since: now` (returns incomplete tasks only)
+  - `opt_fields: name,due_on,due_at,projects.name,permalink_url`
+  - Client-side filter: keep tasks where `due_on` is non-null AND `due_on <= today + $1 days`. Sort ascending by `due_on`.
+
+**Why `get_my_tasks` over `search_tasks`:** `search_tasks` with `assignee_any: me` returns tasks where the user is a collaborator or follower — not just the assignee. This floods the list with downstream pipeline and team-watched tasks that aren't actually theirs. `get_my_tasks` returns only truly assigned tasks. Free-tier workspaces also require `get_my_tasks` because `search_tasks` is paid-plan-only (402 Payment Required otherwise).
 
 **Overdue** tasks (due_on < today, not completed) fall naturally inside the `due_on <= today + $1 days` window and will appear in both result sets without a separate query.
 
@@ -63,7 +62,7 @@ Format as a **single unified table** with **Personal on the left** and **Work on
 
 ### 3. Interactive check-off (free-text)
 
-After displaying the numbered list, ask the user to type the numbers of tasks he wants to mark complete. Example prompt:
+After displaying the numbered list, ask the user to type the numbers of tasks they want to mark complete. Example prompt:
 
 > Type the numbers of tasks to check off (e.g. `1, 3, 8, 11`), or `none` to skip.
 
@@ -85,5 +84,5 @@ For all selected tasks:
 - This is a **read + interactive update** skill. No vault files are created or modified.
 - Cap at 25 tasks per workspace to keep the list actionable.
 - Tasks without a due date are excluded (this skill is specifically for deadline-driven work).
-- If a workspace is on a free Asana plan, `asana_search_tasks` returns 402 Payment Required. Use `asana_get_my_tasks` with `completed_since: now` instead, then client-side filter to tasks with `due_on` within the window.
-- **Never** serialize the workspace fetches. They are independent — always issue them in the same tool-use block.
+- Both workspaces use `asana_get_my_tasks` (not `search_tasks`) to ensure only truly assigned tasks appear. `search_tasks` with `assignee_any: me` returns collaborator/follower tasks too, flooding the list with pipeline items that the user isn't responsible for. Free-tier workspaces also require `get_my_tasks` because `search_tasks` is paid-plan-only (402 on `search_tasks`).
+- **Never** serialize the Work and Personal fetches. They are independent — always issue them in the same tool-use block.
