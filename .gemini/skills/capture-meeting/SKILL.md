@@ -25,7 +25,7 @@ description: Turn rough meeting notes or a transcript into an atomic interaction
    - **Gemini notes** often surface clean next-steps with owner names — cross-reference against transcript to validate, and merge any unique items not captured by Fathom.
    - If only one source is available, use it. If none are available, tell the user and ask for raw notes.
 2. **Identify participants.** Extract names + any email/slack identifiers from the source. Match to existing `+ Atlas/People/*.md` notes (fuzzy on title + aliases, and exact on `emails`/`slack`). For each unmatched participant:
-   - **If the meeting is a real interaction (not a transcript with dozens of names)**: stage a stub at `+ Inbox/people-candidates/<Full Name>.md` using the `/people-sync` stub format, with this meeting as the first evidence bullet. Link the interaction note to the *candidate* stub via `[[people-candidates/<Full Name>]]` and flag for promotion at next `/process-inbox`.
+   - **If the meeting is a real interaction (not a transcript with dozens of names)**: stage a stub at `+ Inbox/people-candidates/<Full Name>.md` using the `/sync-people` stub format, with this meeting as the first evidence bullet. Link the interaction note to the *candidate* stub via `[[people-candidates/<Full Name>]]` and flag for promotion at next `/process-inbox`.
    - **If the name is ambiguous** (first-name only, common name with no other identifier): leave unlinked with a `<!-- TODO: identify -->` marker and skip staging.
    - Offer `/log-person` as an alternative if the user wants to promote directly instead of staging.
 3. **Extract structure.** From the raw notes, pull:

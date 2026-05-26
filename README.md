@@ -124,7 +124,7 @@ Gemini CLI auto-discovers skills in `.gemini/skills/` and activates them when a 
 | `follow-up-draft` | Draft a reply email/Slack message (never sends) |
 | `what-am-i-missing` | Surface overdue tasks, cadence misses, unanswered mail |
 | `people-audit` | Cadence health report + regenerate People MOC |
-| `people-sync` | Discovery pass across Gmail/Calendar/Slack to find unknown people |
+| `sync-people` | Discovery pass across Gmail/Calendar/Slack to find unknown people |
 | `weekly-review` | Monday synthesis |
 | `asana` | Quick view of upcoming Asana tasks with interactive check-off |
 

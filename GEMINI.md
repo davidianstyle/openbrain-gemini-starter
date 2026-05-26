@@ -206,7 +206,7 @@ Overdue relationships surface in `/what-am-i-missing` and `/people-audit`.
 
 ### Candidate staging
 
-New person notes discovered from automated sweeps (`/people-sync`, `/process-inbox` scheduled mode, `/capture-meeting` for unmatched participants) stage at `+ Inbox/people-candidates/<Full Name>.md` — **never directly in `+ Atlas/People/`**. Stubs carry `tags: [person, needs-review, stub]` and an `## Evidence` section listing source touchpoints. Promotion to `+ Atlas/People/` is a manual step: review, fill `relationship`, trim evidence, move file, drop `needs-review`/`stub` tags, and add to `+ Spaces/People.md`.
+New person notes discovered from automated sweeps (`/sync-people`, `/process-inbox` scheduled mode, `/capture-meeting` for unmatched participants) stage at `+ Inbox/people-candidates/<Full Name>.md` — **never directly in `+ Atlas/People/`**. Stubs carry `tags: [person, needs-review, stub]` and an `## Evidence` section listing source touchpoints. Promotion to `+ Atlas/People/` is a manual step: review, fill `relationship`, trim evidence, move file, drop `needs-review`/`stub` tags, and add to `+ Spaces/People.md`.
 
 ### Alias resolution
 
@@ -221,12 +221,12 @@ When matching a name or address to an existing person note:
 
 ### Interaction linking contract
 
-When an interaction note is created (via `/capture-meeting`, `/log-interaction`, or auto-logged by `/people-sync` and `/process-inbox`; note that `/log-note` does **not** trigger this contract):
+When an interaction note is created (via `/capture-meeting`, `/log-interaction`, or auto-logged by `/sync-people` and `/process-inbox`; note that `/log-note` does **not** trigger this contract):
 - The interaction's `people:` frontmatter array lists `[[wikilinks]]` to each participant's person note.
 - Each linked person note gets its `last_contact:` updated to the interaction date, and a new bullet under its `## Threads` section pointing back to the interaction note.
 - Commitments extracted from the interaction land under `## Open commitments` (theirs / mine) in each linked person note.
 
-**Auto-logged interactions.** `/people-sync` and `/process-inbox` automatically create lightweight interaction notes for direct email threads and Slack DMs/mentions involving known people (those with notes in `+ Atlas/People/`). These auto-logged notes have an auto-extracted summary and leave Decisions/Commitments/Follow-ups sections empty. Mailing lists, Google Groups, CC-only threads, bot addresses, and observer-only threads are excluded. Deduplication is by `source:` frontmatter — one interaction note per thread, and richer notes from `/capture-meeting` or `/log-interaction` always take precedence.
+**Auto-logged interactions.** `/sync-people` and `/process-inbox` automatically create lightweight interaction notes for direct email threads and Slack DMs/mentions involving known people (those with notes in `+ Atlas/People/`). These auto-logged notes have an auto-extracted summary and leave Decisions/Commitments/Follow-ups sections empty. Mailing lists, Google Groups, CC-only threads, bot addresses, and observer-only threads are excluded. Deduplication is by `source:` frontmatter — one interaction note per thread, and richer notes from `/capture-meeting` or `/log-interaction` always take precedence.
 
 ## 13. Chief of Staff skills and commands
 
@@ -253,7 +253,7 @@ Skills live in `.gemini/skills/<name>/SKILL.md` (vault-local, portable with the 
 | `/learn-writing-style` | Scan your sent email + Slack messages to derive a personalized writing-style profile (email vs Slack, by audience size). Updates `GEMINI.md §6` in place. Run after initial bootstrap. |
 | `/what-am-i-missing` | Surface overdue tasks, stale commitments, cadence misses, unanswered mail. |
 | `/people-audit` | Cadence health report + regenerate `+ Spaces/People.md` grouping. |
-| `/people-sync` | Discovery pass across Gmail/Calendar/Slack — auto-updates `last_contact` on known people, stages unknowns in `+ Inbox/people-candidates/`, proposes alias merges. |
+| `/sync-people` | Discovery pass across Gmail/Calendar/Slack — auto-updates `last_contact` on known people, stages unknowns in `+ Inbox/people-candidates/`, proposes alias merges. |
 | `/weekly-review` | Monday synthesis → `+ Atlas/Weekly Reviews/<ISO-week>.md`. |
 | `/asana` | Quick view of tasks due in the next 7 days across configured workspaces, with interactive check-off. |
 

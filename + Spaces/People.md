@@ -12,7 +12,7 @@ Add new section headings here as your network grows. Common starting points:
 
 ## Work
 
-_No people yet. Create one with `/log-person` or let `/people-sync` discover them from your Gmail/Slack/Calendar._
+_No people yet. Create one with `/log-person` or let `/sync-people` discover them from your Gmail/Slack/Calendar._
 
 ## Family
 

@@ -17,4 +17,14 @@ else
   log "no upstream configured, skipping pull"
 fi
 
+# Warm Google OAuth access tokens so MCP calls don't pay refresh latency mid-session,
+# and surface any revoked refresh tokens up front. Silent on success; logs the tail
+# of stderr on failure. Guarded on the venv so this is a no-op on machines that
+# haven't run bootstrap/setup.sh yet.
+if [[ -x "$VAULT/bootstrap/lib/refresh-google-tokens.sh" && -d "$HOME/.config/openbrain/venv" ]]; then
+  if ! refresh_out="$("$VAULT/bootstrap/lib/refresh-google-tokens.sh" 2>&1)"; then
+    log "google token refresh: $(printf '%s' "$refresh_out" | tail -3 | tr '\n' ' ')"
+  fi
+fi
+
 exit 0
