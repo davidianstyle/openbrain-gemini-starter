@@ -60,7 +60,10 @@ if compgen -G "$TOKEN_DIR/google-*-credentials.json" > /dev/null; then
   done
 fi
 
-[[ ${#SLUGS[@]} -gt 0 ]] || die "no Google accounts configured ($TOKEN_DIR/google-*-credentials.json is empty)"
+if [[ ${#SLUGS[@]} -eq 0 ]]; then
+  info "no Google accounts configured, skipping token refresh"
+  exit 0
+fi
 
 # Resolve slug → email by reading the GOOGLE_SLUGS block in .env
 # (lines look like `# you-example-com (you@example.com)`)
@@ -68,7 +71,7 @@ slug_to_email() {
   local slug="$1"
   grep -E "^# ${slug} \(.+\)\$" "$ENV_FILE" 2>/dev/null \
     | sed -E "s/^# ${slug} \((.+)\)\$/\1/" \
-    | head -1
+    | head -1 || true
 }
 
 case "${1:-}" in
@@ -91,6 +94,8 @@ case "${1:-}" in
     step "Refreshing access tokens for ${#SLUGS[@]} Google accounts"
     fail_count=0
     ok_count=0
+    tmp_err="$(mktemp)"
+    trap 'rm -f "$tmp_err"' EXIT
     for slug in "${SLUGS[@]}"; do
       creds="$TOKEN_DIR/google-${slug}-credentials.json"
       gcal="$TOKEN_DIR/google-${slug}-gcal-token.json"
@@ -98,7 +103,7 @@ case "${1:-}" in
       gdrive_dir="$DRIVE_TOKEN_ROOT/$slug"
       gdrive="$gdrive_dir/token.json"
 
-      if "$VENV_DIR/bin/python3" - "$creds" "$gcal" "$gmeet" "$gdrive" "$gdrive_dir" <<'PY' 2>/tmp/openbrain-refresh-err
+      if "$VENV_DIR/bin/python3" - "$creds" "$gcal" "$gmeet" "$gdrive" "$gdrive_dir" <<'PY' 2>"$tmp_err"
 import json, os, sys
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
@@ -152,7 +157,7 @@ PY
         ok "$slug — access token refreshed"
         ok_count=$((ok_count + 1))
       else
-        err_msg="$(tr '\n' ' ' < /tmp/openbrain-refresh-err | head -c 200)"
+        err_msg="$(tr '\n' ' ' < "$tmp_err" | head -c 200)"
         email="$(slug_to_email "$slug")"
         warn "$slug — refresh failed: $err_msg"
         if [[ -n "$email" ]]; then
@@ -161,7 +166,6 @@ PY
         fail_count=$((fail_count + 1))
       fi
     done
-    rm -f /tmp/openbrain-refresh-err
     printf '\n'
     if (( fail_count > 0 )); then
       die "$ok_count OK · $fail_count NEEDS-REAUTH"

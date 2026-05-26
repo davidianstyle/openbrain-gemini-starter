@@ -35,7 +35,7 @@ Scan recent calendar activity across all `google_*` MCPs, propose new Place note
 4. **Normalize locations into a touchpoint table.** One row per (canonicalized address, source event, date, attendee_count). Canonicalization rules:
    - Strip trailing `, USA`.
    - Lowercase the whole string for matching, but preserve original casing for the title.
-   - Split a location like `"Williams Elementary School, 141 Grove St, Auburndale, MA 02466"` into `business_name="Williams Elementary School"` + `address="141 Grove St, Auburndale, MA 02466"`. Use the comma-with-state-abbreviation heuristic: the segment before the first comma with a US state code (`MA`, `NY`, `IL`, etc.) is usually the business name; the rest is the postal address.
+   - Split a location like `"Acme School, 141 Grove St, Anytown, MA 02466"` into `business_name="Acme School"` + `address="141 Grove St, Anytown, MA 02466"`. Use the comma-with-state-abbreviation heuristic: the segment before the first comma with a US state code (`MA`, `NY`, `IL`, etc.) is usually the business name; the rest is the postal address.
    - If the string has no recognizable address (e.g. just a city, just a building name), keep it intact as `display_name` and skip splitting.
    - Roll up touchpoints per canonicalized address — multiple events at the same address are one row.
 
@@ -44,7 +44,7 @@ Scan recent calendar activity across all `google_*` MCPs, propose new Place note
    - `location` is a virtual meeting URL — anything matching `https://meet.google.com/`, `zoom.us`, `teams.microsoft.com`, `webex.com`, `slack.com`, `tel.meet`, `tel:`, or a phone number.
    - `location` is `"Home"`, `"Out of office"`, `"Busy"`, or otherwise a Reclaim auto-block / OOO signal.
    - `location` is just an airport code (`"Boston BOS"`, `"Chicago ORD"`) without context — these are travel buffers from flight events, not places to track.
-   - `location` matches the user's home address. Hardcoded skip list: `75 Bourne St` and any `+ Atlas/Places/*.md` notes with `type: home`. (This generalizes: never re-stage a known-home address.)
+   - `location` matches the user's home address. Read `+ Atlas/Places/*.md` and skip any address that matches a note with `type: home`. (This generalizes: never re-stage a known-home address.)
    - The event was declined by the user (`responseStatus: declined` in the user's attendee record).
    - The event has no attendees other than the user (single-attendee blocks shouldn't surface — they're calendar holds, not visits-to-a-place).
 
@@ -70,7 +70,7 @@ Scan recent calendar activity across all `google_*` MCPs, propose new Place note
    - Default → `other`
 
 8b. **Web fallback for missing `address:` on staged candidates.** If a candidate has a `business_name` parsed but no `address:` from the calendar (the location string was just the name, e.g. `"Chuck E. Cheese"`), do a bounded internet lookup before staging:
-   - Issue **one** `WebSearch` per address-less candidate: `"<business_name>" <city or region hint> address`. The city/region hint comes from the user's home anchor — read `+ Atlas/Places/*.md` for any `type: home` notes and use that city/state as the disambiguator (Greater Boston by default per `75 Bourne St`). Without a hint, **do not search** — chain businesses will pollute the inbox.
+   - Issue **one** `WebSearch` per address-less candidate: `"<business_name>" <city or region hint> address`. The city/region hint comes from the user's home anchor — read `+ Atlas/Places/*.md` for any `type: home` notes and use that city/state as the disambiguator. Without a hint, **do not search** — chain businesses will pollute the inbox.
    - Pick the top result that's clearly the official listing (Google Maps, Yelp, official site). If multiple plausible candidates remain (different streets, different cities), **leave `address:` blank** and add a `## Notes` line listing the candidate URLs for the user.
    - On unambiguous match, populate `address:` and append `<!-- address sourced from web lookup, verify -->` inline. Cite the URL in `## Notes` as `_Address from web lookup: <URL>._`.
    - **Hard cap: 1 WebSearch + up to 2 WebFetch calls per candidate.** Skip the lookup entirely in `scheduled` mode — sync runs should not burn web quota on uncertain matches.
@@ -148,5 +148,5 @@ This skill never performs promotion itself.
 - **Cross-skill coordination:**
   - When `/sync-organizations` stages an Org candidate whose calendar location appears multiple times, this skill's next run picks up the implied Place. Skills do not duplicate detection logic — `/sync-places` reads `+ Atlas/Organizations/*.md` as the source of truth for which calendar-location strings are already orgs (the Bucket B path).
   - When `/log-place` is run manually, it should also auto-link any orgs whose `title` matches the place's name (handled by `/log-place` step 4).
-- **Facet awareness is the key value-add of this skill.** A naïve implementation that just stages every calendar location would flood the inbox with stuff that's actually already represented as Orgs (Joanne Langione Dance Center, Williams Elementary School, Workbar Needham). The Bucket B handling is what makes the skill useful — it surfaces the missing Place *facet* on existing Orgs as a separate, higher-priority signal.
+- **Facet awareness is the key value-add of this skill.** A naïve implementation that just stages every calendar location would flood the inbox with stuff that's actually already represented as Orgs (e.g. a school, a regular coffee shop, a coworking space). The Bucket B handling is what makes the skill useful — it surfaces the missing Place *facet* on existing Orgs as a separate, higher-priority signal.
 - **Type auto-suggestion is a hint, not a verdict** — user finalizes at promotion. The `## Related people` section is the same — link discovered attendees, but don't infer the *nature* of the relationship beyond "this person attended events here."

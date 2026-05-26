@@ -40,7 +40,7 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new Organ
    - **Bucket C — Truly unknown domain.** Apply threshold (step 7) before staging.
 
 7. **Apply threshold for Bucket C (unknowns).** Require at least one of:
-   - **≥2 distinct individuals** from the same domain across the window (e.g. two `@archtofreedom.org` people show up = the domain is an organizational entity, not a one-off contact), OR
+   - **≥2 distinct individuals** from the same domain across the window (e.g. two `@example.org` people show up = the domain is an organizational entity, not a one-off contact), OR
    - **≥3 touchpoints from a single individual** at the domain across ≥2 distinct days (recurring engagement signals an active relationship worth tracking), OR
    - **Fathom meeting where the user is a participant AND an external-domain attendee** is present (direct meeting = high signal, mirrors `/sync-people` Bucket C rule).
 
@@ -102,7 +102,7 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new Organ
 
     If a stub already exists in `+ Inbox/org-candidates/` for this org, **append** new evidence bullets and new `## Key people` entries rather than overwriting.
 
-10b. **Web fallback for HQ address (interactive mode only).** After staging, for each new Bucket B/C candidate that's a non-consumer org (not a vendor billing domain like `sendgrid.com`), do **one** `WebSearch` for `"<org name>" headquarters address` (or `"<org name>" location` for local/regional orgs). Add a geographic hint if the org name is ambiguous, drawn from the user's home anchor (Greater Boston by default per `+ Atlas/Places/75 Bourne St.md`). On an unambiguous match:
+10b. **Web fallback for HQ address (interactive mode only).** After staging, for each new Bucket B/C candidate that's a non-consumer org (not a vendor billing domain like `sendgrid.com`), do **one** `WebSearch` for `"<org name>" headquarters address` (or `"<org name>" location` for local/regional orgs). Add a geographic hint if the org name is ambiguous, drawn from the user's home anchor — read `+ Atlas/Places/*.md` for any `type: home` notes and use that city/state. On an unambiguous match:
     - Append to the stub's `## Possible Place facet` section: `_HQ candidate: <address> (from <URL>, verify). If this is the org's primary physical location, /sync-places will pick it up on its next run; otherwise create a Place note manually._`
     - Skip silently if the search returns nothing useful or multiple conflicting addresses.
     - **Hard cap: 1 WebSearch + 1 WebFetch per candidate.** Skip the lookup entirely in `scheduled` mode — sync runs should not burn web quota on uncertain matches.
