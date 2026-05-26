@@ -19,7 +19,7 @@ description: Monday synthesis — write + Atlas/Weekly Reviews/<ISO-week>.md fro
    - Read every `+ Atlas/Interactions/YYYY-MM-DD-*.md` in the week.
    - Asana task churn: for both workspaces, list tasks completed in the window (`asana_search_tasks` with `completed_on.after` / `.before`), and tasks newly created.
    - Git history: `git log --since=<start> --until=<end> --oneline` from the vault repo → captures vault activity.
-3. **People sweep.** Invoke `/people-sync 7d scheduled` logic for the review window — update `last_contact` on Bucket A matches, stage Bucket C candidates in `+ Inbox/people-candidates/`, and hold Bucket B alias merges for user confirmation in the review output. Feed the bucket counts into the review.
+3. **People sweep.** Invoke `/sync-people 7d scheduled` logic for the review window — update `last_contact` on Bucket A matches, stage Bucket C candidates in `+ Inbox/people-candidates/`, and hold Bucket B alias merges for user confirmation in the review output. Feed the bucket counts into the review.
 4. **Compose the review.** Write `+ Atlas/Weekly Reviews/<ISO-week>.md` with sections:
    - **Highlights** — 3–5 bullets, most meaningful moments of the week (from daily notes + interactions).
    - **People touched** — unique `[[wikilinks]]` from interactions this week.

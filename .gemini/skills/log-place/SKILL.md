@@ -21,7 +21,7 @@ description: Create a new place note at + Atlas/Places/<name>.md from the Place 
    - For each `google_*` MCP, `google_calendar_list_events` over the last 90 days. Post-filter to events whose `location` field contains the place name (substring match, case-insensitive).
    - For each `google_*` MCP, `google_gmail_search_emails` with the place name as a quoted query, capped at 5 hits. Used to surface mentions that imply an address from email signatures or invitations.
    - From the matched events, extract:
-     - The full `location` string from any matching event → populate `address:` (parse out the postal portion after the first comma with a state code, per the same heuristic `/places-sync` uses)
+     - The full `location` string from any matching event → populate `address:` (parse out the postal portion after the first comma with a state code, per the same heuristic `/sync-places` uses)
      - All non-user attendees → candidate links for `## Related people`
      - Event creators/organizers' email domains → candidate links for `## Related organizations` (cross-reference against `+ Atlas/Organizations/*.md` by domain)
 
@@ -40,8 +40,8 @@ description: Create a new place note at + Atlas/Places/<name>.md from the Place 
    - Otherwise → `other` (leave as default; user can override)
 
 6. **Link people and orgs.** Use the candidate lists from step 3:
-   - For each non-user attendee, match against `+ Atlas/People/*.md` `emails:` array. If matched, add `- [[Person Name]] (attended <N> events here)` under `## Related people`. Do not stage new person candidates from this skill — that's `/people-sync`'s job.
-   - For each organizer domain, match against `+ Atlas/Organizations/*.md` (by `url:` or domain inferred from `title`). If matched, add `- [[Org Name]]` under `## Related organizations`. If no match, just note the domain inline so the user can decide whether to run `/orgs-sync` or `/log-organization`.
+   - For each non-user attendee, match against `+ Atlas/People/*.md` `emails:` array. If matched, add `- [[Person Name]] (attended <N> events here)` under `## Related people`. Do not stage new person candidates from this skill — that's `/sync-people`'s job.
+   - For each organizer domain, match against `+ Atlas/Organizations/*.md` (by `url:` or domain inferred from `title`). If matched, add `- [[Org Name]]` under `## Related organizations`. If no match, just note the domain inline so the user can decide whether to run `/sync-organizations` or `/log-organization`.
 
 7. **Facet cross-link suggestion.** If the place name matches an existing Org by title (per the "Places and Orgs are facets" convention — a single real-world entity can be both a Place and an Org), add a Notes line:
    `_This place is the physical facet of [[<Org>]]. Open [[<Org>]] and add [[<this Place>]] to its ## Places section to complete the bi-directional link._`
@@ -59,7 +59,7 @@ description: Create a new place note at + Atlas/Places/<name>.md from the Place 
 
 - **Only populate `address:` from unambiguous matches.** Applies to both calendar matches (step 3) and web lookups (step 4): if the place name appears in multiple distinct calendar locations OR the web search returns conflicting addresses, flag it and leave `address:` blank for the user to disambiguate. Chain businesses (Starbucks, etc.) require a city/state hint before web lookup proceeds.
 - **Web-lookup addresses always carry the `<!-- address sourced from web lookup, verify -->` comment** so the user sees they were not derived from their own calendar/email and may need verification.
-- **Do not stage new person candidates from this skill.** If a non-vault person attended an event at this place, leave them out of `## Related people`. `/people-sync` will surface them on its next run if they meet the Bucket C threshold elsewhere.
-- **Do not stage new org candidates either.** Same reason — `/orgs-sync` owns that pass.
+- **Do not stage new person candidates from this skill.** If a non-vault person attended an event at this place, leave them out of `## Related people`. `/sync-people` will surface them on its next run if they meet the Bucket C threshold elsewhere.
+- **Do not stage new org candidates either.** Same reason — `/sync-organizations` owns that pass.
 - **`type: home`** is the one type that should never be auto-inferred from the place name alone — homes don't have predictable name patterns. If the user passes `home` as `$2`, accept it; otherwise leave as `other` and let them correct.
 - Per GEMINI.md, attached `~/.config/openbrain/.env` and shell escape rules apply when launching the MCP commands (no special handling required here).

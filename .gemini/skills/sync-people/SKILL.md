@@ -1,9 +1,9 @@
 ---
-name: people-sync
+name: sync-people
 description: Discovery pass across Gmail, Google Calendar, Slack, and Fathom to find unknown people and stale contacts. Stages new-person candidates in + Inbox/people-candidates/ and auto-updates last_contact on existing people notes.
 ---
 
-# /people-sync
+# /sync-people
 
 Scan recent activity across all multi-account MCPs and Fathom, propose new person notes for unknown humans, update `last_contact` for known ones, and surface alias merges. Never writes directly to `+ Atlas/People/` — candidates stage in `+ Inbox/people-candidates/` for review.
 
@@ -19,15 +19,15 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new perso
    - **Gmail** — for each `google_*` MCP, `google_gmail_search_emails` with `newer_than:<window>` scoped to inbox + sent. Extract `From`, `To`, `Cc` addresses and display names from each thread. Tag each touchpoint with account slug and date.
    - **Google Calendar** — for each `google_*` MCP, `google_calendar_list_events` over the window. Extract attendees (name + email, skip resource rooms and the account owner).
    - **Slack** — for each `slack_*` MCP, fetch in parallel: `slack_conversations_unreads` (current DMs/IMs), `slack_my_mentions` with the lookback window in hours (channel + thread `@mentions` of the user), and optionally `slack_conversations_search_messages` for back-window DM history. The first two are **required** to capture both DM activity *and* channel-mention activity — without `slack_my_mentions`, mentions in already-read channels and thread replies are invisible. For each match, extract the `user` field (sender id) — resolve to a display name via `users_search` if needed. Tag each touchpoint with workspace slug.
-   - **Fathom** — call `mcp_fathom_list_meetings` for the lookback window. Extract invitees (name + email) from each meeting. Tag touchpoints with source `fathom` and the meeting date. Each Fathom meeting where the user is a participant counts as a calendar-grade signal (direct meeting = high signal for Bucket C threshold).
+   - **Fathom** — call `mcp__fathom__list_meetings` for the lookback window. Extract invitees (name + email) from each meeting. Tag touchpoints with source `fathom` and the meeting date. Each Fathom meeting where the user is a participant counts as a calendar-grade signal (direct meeting = high signal for Bucket C threshold).
 3. **Normalize into a touchpoint table.** One row per (person identifier, source, date). Identifier = email address (Gmail/Cal) or `workspace-slug:user_id` (Slack).
 4. **Filter noise.** Drop:
    - No-reply / bot addresses (`noreply@`, `no-reply@`, `notifications@`, `mailer-daemon@`, etc.).
    - Mailing list addresses and Google Group aliases.
    - Calendar resources (rooms, equipment).
-   - The account owner themselves (all of the user's own addresses — see GEMINI.md §12 for the configured Google slugs).
-   - Any addresses the user has explicitly flagged as delegations / FYI-only in an auto-memory or GEMINI.md note.
-5. **Match against existing people.** Apply the alias resolution rules from GEMINI.md §13:
+   - The account owner themselves (all of the user's own addresses — see CLAUDE.md §12 for the configured Google slugs).
+   - Any addresses the user has explicitly flagged as delegations / FYI-only in an auto-memory or CLAUDE.md note.
+5. **Match against existing people.** Apply the alias resolution rules from CLAUDE.md §13:
    - Exact email → `emails:` array = definite match.
    - Exact Slack handle → `slack:` array = definite match.
    - Exact full name → `title:` or `aliases:` = definite match.
@@ -81,13 +81,13 @@ Scan recent activity across all multi-account MCPs and Fathom, propose new perso
     last_contact: <most recent touchpoint date>
     created: <today>
     tags: [person, needs-review, stub]
-    workspace: <personal|work based on which MCPs surfaced them, per GEMINI.md §12>
+    workspace: <personal|work based on which MCPs surfaced them, per CLAUDE.md §12>
     ---
 
     # <Full Name>
 
     ## Context
-    <!-- Auto-staged by /people-sync on <today>. Review before promoting to + Atlas/People/. -->
+    <!-- Auto-staged by /sync-people on <today>. Review before promoting to + Atlas/People/. -->
 
     ## Evidence
     - <source-slug> · <date> · <1-line context: subject line, event title, or channel>
