@@ -121,7 +121,7 @@ Gemini CLI auto-discovers skills in `.gemini/skills/` and activates them when a 
 | `log-place` | Create a place note |
 | `log-organization` | Create an organization note |
 | `log-quote` | Save a quote |
-| `follow-up-draft` | Draft a reply email/Slack message (never sends) |
+| `draft-follow-up` | Draft a reply email/Slack message (never sends) |
 | `what-am-i-missing` | Surface overdue tasks, cadence misses, unanswered mail |
 | `people-audit` | Cadence health report + regenerate People MOC |
 | `sync-people` | Discovery pass across Gmail/Calendar/Slack to find unknown people |
