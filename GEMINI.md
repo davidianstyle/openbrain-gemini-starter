@@ -246,16 +246,20 @@ Skills live in `.gemini/skills/<name>/SKILL.md` (vault-local, portable with the 
 | `/log-idea` | Create an idea note at `+ Atlas/Ideas/`. |
 | `/log-decision` | Record a decision with context, reasoning, and alternatives at `+ Atlas/Decisions/`. |
 | `/log-goal` | Create a goal note with definition of done and linked projects at `+ Atlas/Goals/`. |
-| `/log-place` | Create a place note at `+ Atlas/Places/`. |
+| `/log-place` | Create a place note at `+ Atlas/Places/`. Auto-seeds `address:` + cross-links to people/orgs from recent calendar activity unless run in `quick` mode. |
 | `/log-organization` | Create an organization note with key people and places at `+ Atlas/Organizations/`. |
 | `/log-quote` | Save a quote with attribution and source link at `+ Atlas/Quotes/`. |
-| `/follow-up-draft` | Draft a reply/nudge for the right account. Saves as draft, never sends. |
+| `/follow-up-draft` | Draft a reply/nudge for the right account. Saves as draft, never sends. Also invoked in batch by `/daily-brief` and `/process-inbox` for actionable "Needs a reply" items. |
 | `/learn-writing-style` | Scan your sent email + Slack messages to derive a personalized writing-style profile (email vs Slack, by audience size). Updates `GEMINI.md §6` in place. Run after initial bootstrap. |
 | `/what-am-i-missing` | Surface overdue tasks, stale commitments, cadence misses, unanswered mail. |
 | `/people-audit` | Cadence health report + regenerate `+ Spaces/People.md` grouping. |
 | `/sync-people` | Discovery pass across Gmail/Calendar/Slack — auto-updates `last_contact` on known people, stages unknowns in `+ Inbox/people-candidates/`, proposes alias merges. |
+| `/sync-organizations` | Discovery pass across Gmail/Calendar/Slack/Fathom — finds organizations not yet captured in `+ Atlas/Organizations/`, stages candidates in `+ Inbox/org-candidates/`. Mirrors `/sync-people` for the org facet. |
+| `/sync-places` | Discovery pass across Google Calendar — finds physical places not yet captured in `+ Atlas/Places/`, stages candidates in `+ Inbox/place-candidates/`. Facet-aware: surfaces when an existing Org should also get a Place note. |
 | `/weekly-review` | Monday synthesis → `+ Atlas/Weekly Reviews/<ISO-week>.md`. |
 | `/asana` | Quick view of tasks due in the next 7 days across configured workspaces, with interactive check-off. |
+| `/pull-openbrain-template` | Pull latest changes from the upstream starter, diff against this vault's infrastructure, and interactively apply each change. |
+| `/push-openbrain-template` | Genericize vault improvements and open a PR against the upstream starter — strips personal data, diffs, and creates the GitHub PR after review. |
 
 Skills are markdown procedures only — they describe which MCP tools to call and which files to read/write. They do not execute code; Gemini reads the SKILL.md and performs the steps.
 
@@ -269,7 +273,8 @@ Skills are markdown procedures only — they describe which MCP tools to call an
   - `mcp_asana-work_asana_search_tasks` — Asana work workspace
   - `mcp_fathom_fathom_list_meetings` — Fathom meeting recorder
 - **When a skill says "for each `google_*` MCP"**, iterate over all MCP servers whose alias starts with `google-`. Use `/mcp` to discover the full list of available servers and tools.
-- **Slack write operations:** The local `slack-*` MCPs support `slack_conversations_add_message` natively. Use this tool for sending messages.
+- **Slack write operations:** The local `slack-*` MCPs support both message sending (`slack_conversations_add_message`) and draft creation (`slack_drafts_create` / `slack_drafts_edit` / `slack_drafts_delete`) natively. Use these for all Slack writes.
+  - **DM channel resolution.** `slack_drafts_create` needs a real channel id (`C...` for channels, `D...` for IMs). For an existing IM, look it up via `slack_channels_list types=im` matched against the user id from `slack_users_search`. Opening a brand-new DM via `slack_conversations_open` currently fails with `missing_scope` on the OpenBrain Slack OAuth grant; if no existing IM channel is found, surface the limitation rather than substituting another tool.
 - **Before recommending any Asana task, Slack message, or Google Doc edit**, verify the target still exists (the state may have changed since the last session).
 
 ## 15. Deployment
