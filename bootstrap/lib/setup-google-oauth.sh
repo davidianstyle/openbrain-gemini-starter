@@ -68,21 +68,13 @@ env_set_var GOOGLE_OAUTH_CLIENT_ID "$CLIENT_ID"
 env_set_var GOOGLE_OAUTH_CLIENT_SECRET "$CLIENT_SECRET"
 chmod 600 "$ENV_FILE"
 
-# Also write the oauth-client.json that Gmail MCP needs
-mkdir -p "$TOKEN_DIR"
-chmod 700 "$TOKEN_DIR"
-cat >"$TOKEN_DIR/oauth-client.json" <<EOF
-{
-  "installed": {
-    "client_id": "${CLIENT_ID}",
-    "client_secret": "${CLIENT_SECRET}",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "redirect_uris": ["http://localhost"]
-  }
-}
-EOF
-chmod 600 "$TOKEN_DIR/oauth-client.json"
+# Also write google-oauth-client.json (the OAuth mint flow reads it; the runtime
+# MCP does not — it uses the per-account creds file). .env is the single source
+# of truth; the json is regenerated from it via the shared helper, so the
+# heredoc lives in exactly one place (common.sh).
+export GOOGLE_OAUTH_CLIENT_ID="$CLIENT_ID"
+export GOOGLE_OAUTH_CLIENT_SECRET="$CLIENT_SECRET"
+sync_google_oauth_client_json
 
-ok "Google OAuth client stored in $ENV_FILE and $TOKEN_DIR/oauth-client.json"
+ok "Google OAuth client stored in $ENV_FILE and $TOKEN_DIR/google-oauth-client.json"
 info "Next: add individual Google accounts with ./bootstrap/lib/add-google-account.sh <email>"

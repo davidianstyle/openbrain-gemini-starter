@@ -300,3 +300,94 @@ load_env() {
   # shellcheck disable=SC1090
   set -a; source "$ENV_FILE"; set +a
 }
+
+# ---------- OAuth client config: .env as single source of truth, per provider ----------
+# OAuth client_id/secret live canonically in .env, namespaced per provider
+# (GOOGLE_OAUTH_CLIENT_ID/SECRET today; MICROSOFT_OAUTH_CLIENT_ID/SECRET if/when
+# we add it). Two artifacts are DERIVED from .env, per provider:
+#   tokens/<provider>-oauth-client.json   — client config the mint flow reads
+#   tokens/.<provider>-oauth-fingerprint  — which client the connected tokens belong to
+# Regenerating the json from .env at mint time means editing the secret in .env
+# propagates on the next (re-)auth. The fingerprint lets the SessionStart probe
+# notice when the client itself changed and a reconnect is warranted.
+#
+# The generic helpers take a REQUIRED <provider> key — no default, because an
+# explicit provider is the whole point of namespacing (a default would silently
+# act on google). The client-config WRITER is provider-specific (the json shape
+# differs per provider), so it's an explicit per-provider function.
+#
+# To add a provider (e.g. microsoft), see "Adding another OAuth provider" in
+# bootstrap/README.md — the step-by-step convention.
+
+# Resolve a per-provider .env var: _oauth_env google CLIENT_ID -> $GOOGLE_OAUTH_CLIENT_ID
+_oauth_env() {
+  local up; up="$(printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_')"
+  local var="${up}_OAUTH_$2"
+  printf '%s' "${!var:-}"
+}
+
+_oauth_fingerprint_file() { printf '%s/.%s-oauth-fingerprint' "$TOKEN_DIR" "$1"; }
+
+# Google's installed-app client config. Atomic + idempotent; no-op if .env lacks
+# the creds, so we never clobber a good file with an empty one.
+sync_google_oauth_client_json() {
+  local id="${GOOGLE_OAUTH_CLIENT_ID:-}" secret="${GOOGLE_OAUTH_CLIENT_SECRET:-}"
+  [[ -n "$id" && -n "$secret" ]] || return 0
+  mkdir -p "$TOKEN_DIR"; chmod 700 "$TOKEN_DIR" 2>/dev/null || true
+  local out="$TOKEN_DIR/google-oauth-client.json"
+  local tmp; tmp="$(mktemp "${TOKEN_DIR}/.google-oauth-client.XXXXXX")"
+  cat >"$tmp" <<JSON
+{
+  "installed": {
+    "client_id": "${id}",
+    "client_secret": "${secret}",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "redirect_uris": ["http://localhost"]
+  }
+}
+JSON
+  chmod 600 "$tmp"
+  mv -f "$tmp" "$out"
+}
+
+oauth_fingerprint() {
+  # Stable fingerprint of <provider>'s current .env client identity.
+  # Usage: oauth_fingerprint <provider>. Fails (1) if that provider's creds aren't set.
+  local provider="${1:?oauth_fingerprint: provider required}"
+  local id secret
+  id="$(_oauth_env "$provider" CLIENT_ID)"; secret="$(_oauth_env "$provider" CLIENT_SECRET)"
+  [[ -n "$id" && -n "$secret" ]] || return 1
+  if command -v shasum >/dev/null 2>&1; then
+    printf '%s:%s' "$id" "$secret" | shasum -a 256 | awk '{print $1}'
+  elif command -v sha256sum >/dev/null 2>&1; then
+    printf '%s:%s' "$id" "$secret" | sha256sum | awk '{print $1}'
+  else
+    return 1
+  fi
+}
+
+write_oauth_fingerprint() {
+  # Record the client fingerprint <provider>'s tokens were minted against.
+  # Usage: write_oauth_fingerprint <provider>. Clears any prior drift.
+  local provider="${1:?write_oauth_fingerprint: provider required}"
+  local fp; fp="$(oauth_fingerprint "$provider")" || return 0
+  mkdir -p "$TOKEN_DIR"; chmod 700 "$TOKEN_DIR" 2>/dev/null || true
+  local file; file="$(_oauth_fingerprint_file "$provider")"
+  printf '%s\n' "$fp" > "$file"
+  chmod 600 "$file"
+}
+
+auth_drift_detected() {
+  # True (0) when <provider>'s baseline fingerprint exists AND differs from the
+  # current .env identity — the client changed since accounts were connected, so
+  # existing logins may need refreshing. False on first run or when they match.
+  # Usage: auth_drift_detected <provider>.
+  local provider="${1:?auth_drift_detected: provider required}"
+  local file; file="$(_oauth_fingerprint_file "$provider")"
+  [[ -f "$file" ]] || return 1
+  local current stored
+  current="$(oauth_fingerprint "$provider")" || return 1
+  stored="$(cat "$file" 2>/dev/null || true)"
+  [[ -n "$stored" && "$current" != "$stored" ]]
+}

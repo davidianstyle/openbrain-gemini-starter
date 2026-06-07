@@ -29,7 +29,7 @@ All live in `bootstrap/lib/`. Safe to run directly any time.
 
 ### `setup-google-oauth.sh`
 
-One-time GCP Desktop OAuth client setup. Walks you through enabling the 6 Google APIs, creating the OAuth consent screen, and generating a Desktop client ID. Stores `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` in `~/.config/openbrain/.env` and writes `~/.config/openbrain/tokens/oauth-client.json`.
+One-time GCP Desktop OAuth client setup. Walks you through enabling the 6 Google APIs, creating the OAuth consent screen, and generating a Desktop client ID. Stores `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET` in `~/.config/openbrain/.env` and writes `~/.config/openbrain/tokens/google-oauth-client.json` (derived from `.env`).
 
 Re-run to rotate the client credentials.
 
@@ -104,6 +104,21 @@ Prints a summary with ✓ / ⚠ / ✗. Exits 0 unless a hard error is present.
 2. Re-run `./bootstrap/lib/register-mcps.sh` — it will notice the missing credentials and remove the corresponding `mcpServers` entries from `~/.claude.json`.
 
 3. Restart Claude Code.
+
+---
+
+## Adding another OAuth provider
+
+The OAuth machinery is namespaced by a **provider key** (`google` today; e.g. `microsoft` next) so a second provider drops in without touching the shared drift/fingerprint plumbing. The convention:
+
+1. **`.env` vars** — store the client under `<PROVIDER>_OAUTH_CLIENT_ID` / `<PROVIDER>_OAUTH_CLIENT_SECRET` (uppercase; dashes → underscores). Add blank entries to `.openbrain/env.example`. The generic helpers resolve these by provider key via indirect expansion.
+2. **Client-config writer** *(the one provider-specific helper)* — add `sync_<provider>_oauth_client_json()` to `lib/common.sh`. Write `tokens/<provider>-oauth-client.json` in whatever shape that provider's auth library expects (Google uses the `{"installed": {…}}` desktop-client shape; Microsoft/MSAL differs). Make it atomic + idempotent and a no-op when the `.env` vars are unset, like `sync_google_oauth_client_json`.
+3. **Generic helpers — reuse, don't copy.** `oauth_fingerprint <provider>`, `write_oauth_fingerprint <provider>`, and `auth_drift_detected <provider>` already work for any provider — just pass the key. They use `tokens/.<provider>-oauth-fingerprint`.
+4. **Account + refresh scripts** — add `add-<provider>-account.sh` (mint flow → write the per-account creds file the MCP reads, then `write_oauth_fingerprint <provider>` after a successful mint) and `refresh-<provider>-tokens.sh` (token probe; on `auth_drift_detected <provider>`, emit the reconnect nudge bracketed by `OPENBRAIN_AUTH_NUDGE_BEGIN` / `OPENBRAIN_AUTH_NUDGE_END` — the SessionStart hooks surface it verbatim, provider-agnostic).
+5. **Launcher** — add `<provider>-mcp.sh` in `.openbrain/lib/`. Check the per-account creds file and `exec` the server. **Do not check or regenerate the client-config json there** — the MCP server reads the per-account creds, not the client json (see `google-mcp.sh` and the note in `src/auth.ts`).
+6. **`register-mcps.sh`** — discover the provider's configured accounts and register the `mcpServers` entries.
+
+Only the writer (step 2) and the per-provider scripts (steps 4–5) are provider-specific; the fingerprint / drift / nudge logic is shared. See the `OAuth client config … per provider` block in `lib/common.sh` for the helper contracts.
 
 ---
 
