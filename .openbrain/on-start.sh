@@ -22,7 +22,16 @@ fi
 # of stderr on failure. Guarded on the venv so this is a no-op on machines that
 # haven't run bootstrap/setup.sh yet.
 if [[ -x "$VAULT/bootstrap/lib/refresh-google-tokens.sh" && -d "$HOME/.config/openbrain/venv" ]]; then
-  if ! refresh_out="$("$VAULT/bootstrap/lib/refresh-google-tokens.sh" 2>&1)"; then
+  refresh_out="$("$VAULT/bootstrap/lib/refresh-google-tokens.sh" 2>&1)" && refresh_rc=0 || refresh_rc=$?
+  if printf '%s' "$refresh_out" | grep -q 'OPENBRAIN_AUTH_NUDGE_BEGIN'; then
+    # Google auth settings changed — surface the friendly reconnect nudge
+    # verbatim (regardless of probe exit code) so the operator is offered a
+    # reconnect rather than hitting silent failures mid-session.
+    log "Google auth settings changed — offer to reconnect (ask first, let the operator pick which accounts):"
+    printf '%s\n' "$refresh_out" \
+      | sed -n '/OPENBRAIN_AUTH_NUDGE_BEGIN/,/OPENBRAIN_AUTH_NUDGE_END/p' \
+      | grep -vE 'OPENBRAIN_AUTH_NUDGE_(BEGIN|END)' >&2
+  elif (( refresh_rc != 0 )); then
     log "google token refresh: $(printf '%s' "$refresh_out" | tail -3 | tr '\n' ' ')"
   fi
 fi

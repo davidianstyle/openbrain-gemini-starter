@@ -90,6 +90,28 @@ case "${1:-}" in
     ;;
 
   "")
+    # If the OAuth client changed since these accounts were connected (the
+    # .env secret no longer matches the fingerprint the tokens were minted
+    # against), emit a friendly, non-technical reconnect nudge. Bracketed by
+    # sentinels so a consumer's SessionStart hook can surface it verbatim,
+    # regardless of whether the probe below succeeds or fails. We only nudge;
+    # the actual reconnect is the user's call (per account).
+    if auth_drift_detected google; then
+      printf 'OPENBRAIN_AUTH_NUDGE_BEGIN\n'
+      printf '🔑 Heads up — your Google connection settings changed.\n'
+      printf 'The security details for your Google sign-in were updated since you last\n'
+      printf 'connected, so Gmail, Calendar, and Drive may stop working until you reconnect.\n'
+      printf '\n'
+      printf 'Gemini can reconnect these for you — just ask, and pick which ones. It opens\n'
+      printf 'a browser to sign in (about a minute each):\n'
+      for slug in "${SLUGS[@]}"; do
+        email="$(slug_to_email "$slug")"
+        printf '  • %s\n' "${email:-$slug}"
+      done
+      printf "(If you didn't change anything recently, reconnecting is still safe.)\n"
+      printf 'OPENBRAIN_AUTH_NUDGE_END\n'
+    fi
+
     ensure_venv
     step "Refreshing access tokens for ${#SLUGS[@]} Google accounts"
     fail_count=0

@@ -42,28 +42,18 @@ ensure_venv
 mkdir -p "$TOKEN_DIR"
 chmod 700 "$TOKEN_DIR"
 
-OAUTH_CLIENT="$TOKEN_DIR/oauth-client.json"
+OAUTH_CLIENT="$TOKEN_DIR/google-oauth-client.json"
 CREDS_FILE="$TOKEN_DIR/google-${SLUG}-credentials.json"
 GCAL_TOKEN="$TOKEN_DIR/google-${SLUG}-gcal-token.json"
 GMEET_TOKEN="$TOKEN_DIR/google-${SLUG}-gmeet-token.json"
 GDRIVE_TOKEN_DIR="$DRIVE_TOKEN_ROOT/$SLUG"
 GDRIVE_TOKEN="$GDRIVE_TOKEN_DIR/token.json"
 
-# Ensure the shared oauth-client.json exists (setup-google-oauth.sh should have created it)
-if [[ ! -f "$OAUTH_CLIENT" ]]; then
-  cat >"$OAUTH_CLIENT" <<EOF
-{
-  "installed": {
-    "client_id": "${GOOGLE_OAUTH_CLIENT_ID}",
-    "client_secret": "${GOOGLE_OAUTH_CLIENT_SECRET}",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "redirect_uris": ["http://localhost"]
-  }
-}
-EOF
-  chmod 600 "$OAUTH_CLIENT"
-fi
+# Regenerate google-oauth-client.json from .env (single source of truth), so the
+# mint flow below uses the current secret. Unconditional: the old `if [[ ! -f ]]`
+# guard is exactly what let a changed .env secret never reach the file the OAuth
+# flow reads.
+sync_google_oauth_client_json
 
 step "Opening browser to authorize $EMAIL"
 cat <<EOF
@@ -127,6 +117,11 @@ print(f"[openbrain] wrote {creds_file}")
 PY
 
 ok "minted credentials for $EMAIL"
+
+# Record which OAuth client these tokens belong to. A later .env secret change
+# will no longer match this fingerprint, which is how SessionStart detects that
+# a reconnect is needed. Writing it here (post-mint) clears any prior drift.
+write_oauth_fingerprint google
 
 # -----------------------------------------------------------------------------
 # Reshape the credentials into the 3 other token files needed by the other MCPs
