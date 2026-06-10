@@ -185,6 +185,34 @@ ensure_gh() {
   brew install gh || warn "gh installation failed — you can still set up git remotes manually"
 }
 
+# Canonical install-time prerequisite set. The single source of truth for
+# "what must be present before any MCP can build or run." setup.sh calls this
+# instead of listing the ensures inline, and external consumers (e.g. a
+# separate project bootstrap that vendors this file) call the same function — so a
+# new prerequisite added here propagates to every consumer without each one
+# re-implementing the list. Emits the same ok-lines setup.sh used to print.
+# Note: repo-specific steps (e.g. writing .tool-versions into $REPO_ROOT) stay
+# in the calling script — this function installs tools, it does not touch the
+# consumer's working tree.
+ensure_prereqs() {
+  ensure_git
+  ok "git: $(command -v git)"
+  ensure_python3
+  ok "python3: $PYTHON_BIN"
+  ensure_node
+  ok "node: $(command -v node) ($(node --version))"
+  ensure_gemini_cli
+  ok "gemini: $(command -v gemini)"
+  ensure_gh
+  # gh is optional (ensure_gh warns rather than dies); show "not installed"
+  # instead of a blank path when it's absent.
+  if command -v gh >/dev/null 2>&1; then
+    ok "gh: $(command -v gh)"
+  else
+    ok "gh: not installed"
+  fi
+}
+
 ensure_venv() {
   ensure_python3
   mkdir -p "$CONFIG_DIR"

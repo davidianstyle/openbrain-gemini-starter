@@ -47,16 +47,7 @@ fi
 # Step 1: prereqs (auto-installs missing dependencies)
 # -----------------------------------------------------------------------------
 step "1/9 · Checking & installing prerequisites"
-ensure_git
-ok "git: $(command -v git)"
-ensure_python3
-ok "python3: $PYTHON_BIN"
-ensure_node
-ok "node: $(command -v node) ($(node --version))"
-ensure_gemini_cli
-ok "gemini: $(command -v gemini)"
-ensure_gh
-ok "gh: $(command -v gh)"
+ensure_prereqs
 
 # If asdf is active, ensure .tool-versions exists so node/python resolve in this dir
 if command -v asdf >/dev/null 2>&1 && [[ ! -f "$REPO_ROOT/.tool-versions" ]]; then
@@ -140,21 +131,11 @@ fi
 # -----------------------------------------------------------------------------
 # Step 4: install config dir + env
 # -----------------------------------------------------------------------------
+# The shared-layer dir setup + launcher install lives in lib/minimal-init.sh
+# so external consumers can re-use it without inheriting the rest of this
+# wizard. Inlined logic was equivalent; see commit history.
 step "4/9 · Installing ~/.config/openbrain/"
-ensure_env_file
-mkdir -p "$TOKEN_DIR" "$LIB_DIR"
-chmod 700 "$CONFIG_DIR" "$TOKEN_DIR"
-chmod 755 "$LIB_DIR"
-chmod 600 "$ENV_FILE"
-ok "config dir: $CONFIG_DIR"
-
-# Copy launchers
-for f in "$REPO_ROOT/.openbrain/lib/"*.sh; do
-  dest="$LIB_DIR/$(basename "$f")"
-  cp "$f" "$dest"
-  chmod 755 "$dest"
-done
-ok "launcher scripts installed"
+"$HERE/lib/minimal-init.sh"
 
 # -----------------------------------------------------------------------------
 # Step 5: wire up services
